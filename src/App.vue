@@ -1,4 +1,5 @@
 <template>
+  <!-- <RadialProgressBar /> -->
   <FirstInput />
 </template>
 
@@ -15,4 +16,5 @@
 
 <script setup lang="ts">
 import FirstInput from './components/FirstInput.vue'
+import RadialProgressBar from './components/RadialProgressBar.vue'
 </script>

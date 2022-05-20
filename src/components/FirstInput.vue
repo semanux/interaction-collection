@@ -1,15 +1,23 @@
 <template>
   <div class="root">
-    <!-- <h2>Create an Account</h2> -->
+    <RadialProgressBar />
+    <!-- <form @submit="onSubmit"> -->
+    <h2>Create an Account</h2>
     <p>
       <input type="text" placeholder="Email" v-model="state.email" />
+      <span v-if="v$.email.$error">
+        {{ v$.email.$errors[0].$message }}
+      </span>
     </p>
     <p>
       <input
         type="password"
         placeholder="Password"
-        v-model="state.password.newpassword"
+        v-model="state.password.password"
       />
+      <span v-if="v$.password.password.$error">
+        {{ v$.password.password.$errors[0].$message }}
+      </span>
     </p>
     <p>
       <input
@@ -17,8 +25,16 @@
         placeholder="Confirm Password"
         v-model="state.password.confirm"
       />
+      <span v-if="v$.password.confirm.$error">
+        {{ v$.password.confirm.$errors[0].$message }}
+      </span>
     </p>
-    <button @click="submitForm">Submit</button>
+    <div class="rahul">
+      <button @click="onPrevious">Previous</button>
+      <button @click="onSubmit">Submit</button>
+      <button @click="goToHome()">Next</button>
+    </div>
+    <!-- </form> -->
   </div>
 </template>
 
@@ -26,36 +42,46 @@
 import { reactive } from '@vue/reactivity'
 import { computed } from 'vue'
 import useValidate from '@vuelidate/core'
-// import { required } from '@vuelidate/validators'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
-
+import RadialProgressBar from './RadialProgressBar.vue'
+import router from '../router/index.js'
+import SecondInput from '../components/SecondInput.vue'
 export default {
   setup() {
     const state = reactive({
       email: '',
       password: {
-        newpassword: '',
+        password: '',
         confirm: ''
       }
     })
+
     const rules = computed(() => {
-      email: {
-        required, email
-      }
-      password: {
-        newpassword: {
-          required
-          minLength: minLength(6)
-        }
-        confirm: {
-          required
-          sameAs: sameAs(state.password.newpassword)
+      return {
+        email: { required, email },
+        password: {
+          password: { required, minLength: minLength(6) },
+          confirm: { required, sameAs: sameAs(state.password.password) }
         }
       }
     })
+    function onSubmit(e) {
+      console.log('called the button', e)
+      this.v$.$validate()
+      e.preventDefault()
+    }
+
+    function onNextPage() {
+      this.$router.push('/')
+    }
     const v$ = useValidate(rules, state)
 
-    return { state, v$ }
+    return { state, v$, onSubmit, onNextPage }
+  },
+  methods: {
+    goToHome() {
+        this.$router.push('/second')
+    }
   }
 }
 </script>
@@ -68,6 +94,10 @@ export default {
   padding: 30px;
   margin-top: 100px;
   border-radius: 20px;
+}
+.rahul {
+  display: flex;
+  justify-content: space-between;
 }
 
 input {
