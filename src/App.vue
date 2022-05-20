@@ -1,12 +1,5 @@
-<script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
-import RadialProgressBar from './components/RadialProgressBar.vue'
-</script>
-
 <template>
-  <RadialProgressBar />
+  <FirstInput />
 </template>
 
 <style>
@@ -19,3 +12,7 @@ import RadialProgressBar from './components/RadialProgressBar.vue'
   margin-top: 60px;
 }
 </style>
+
+<script setup lang="ts">
+import FirstInput from './components/FirstInput.vue'
+</script>

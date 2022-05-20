@@ -1,0 +1,33 @@
+// <script>
+// import { reactive, computed } from 'vue'
+// import useValidate from '@vuelidate/core'
+// import { email, required } from '@vuelidate/validators'
+// export default {
+//   data() {
+//     return {
+//       v$: useValidate(),
+//       email: '',
+//       password: {
+//         password: '',
+//         confirm: ''
+//       }
+//     }
+//   },
+//   methods: {
+//     submitForm() {
+//       this.$v.$validate()
+//       alert('Form successfully submitted')
+//     }
+//   },
+//   validations() {
+//     return {
+//       email: { required },
+//       password: {
+//         password: { required },
+//         confirm: { required }
+//       }
+//     }
+//   }
+// }
+//
+// </script>
