@@ -1,3 +1,49 @@
+<script setup lang="ts">
+import { ref, reactive } from '@vue/reactivity'
+import { computed } from 'vue'
+import useValidate from '@vuelidate/core'
+import { required, email, minLength, sameAs } from '@vuelidate/validators'
+import RadialProgressBar from './RadialProgressBar.vue'
+import { useRouter } from "vue-router";
+
+const router = useRouter()
+
+const state = reactive({
+  email: '',
+  password: {
+    password: '',
+    confirm: ''
+  }
+})
+
+const rules = computed(() => {
+  return {
+    email: { required, email },
+    password: {
+      password: { required, minLength: minLength(6) },
+      confirm: { required, sameAs: sameAs(state.password.password) }
+    }
+  }
+})
+
+const validator = useValidate(rules, state)
+
+const onSubmit = (e: Event) => {
+  console.log('called the button', e)
+  validator.value.$validate()
+  e.preventDefault()
+}
+
+const onNextPage = () => {
+  router.push('/')
+}
+
+const goToHome = () => {
+  router.push('/second')
+}
+
+</script>
+
 <template>
   <div class="root">
     <RadialProgressBar />
@@ -5,8 +51,8 @@
       <h2>Create an Account</h2>
       <p>
         <input type="text" placeholder="Email" v-model="state.email" />
-        <span v-if="v$.email.$error">
-          {{ v$.email.$errors[0].$message }}
+        <span v-if="validator.email.$error">
+          {{ validator.email.$errors[0].$message }}
         </span>
       </p>
       <p>
@@ -15,8 +61,8 @@
           placeholder="Password"
           v-model="state.password.password"
         />
-        <span v-if="v$.password.password.$error">
-          {{ v$.password.password.$errors[0].$message }}
+        <span v-if="validator.password.password.$error">
+          {{ validator.password.password.$errors[0].$message }}
         </span>
       </p>
       <p>
@@ -25,67 +71,18 @@
           placeholder="Confirm Password"
           v-model="state.password.confirm"
         />
-        <span v-if="v$.password.confirm.$error">
-          {{ v$.password.confirm.$errors[0].$message }}
+        <span v-if="validator.password.confirm.$error">
+          {{ validator.password.confirm.$errors[0].$message }}
         </span>
       </p>
       <div class="rahul">
-        <button @click="onPrevious">Previous</button>
+        <button @click="">Previous</button>
         <button @click="onSubmit">Submit</button>
-        <router-link to="/second">
-          <button @click="goToHome()">Next</button></router-link
-        >
+        <button @click="goToHome()">Next</button>
       </div>
     </form>
   </div>
 </template>
-
-<script>
-import { reactive } from '@vue/reactivity'
-import { computed } from 'vue'
-import useValidate from '@vuelidate/core'
-import { required, email, minLength, sameAs } from '@vuelidate/validators'
-import RadialProgressBar from './RadialProgressBar.vue'
-import router from '../router/index.js'
-export default {
-  setup() {
-    const state = reactive({
-      email: '',
-      password: {
-        password: '',
-        confirm: ''
-      }
-    })
-
-    const rules = computed(() => {
-      return {
-        email: { required, email },
-        password: {
-          password: { required, minLength: minLength(6) },
-          confirm: { required, sameAs: sameAs(state.password.password) }
-        }
-      }
-    })
-    function onSubmit(e) {
-      console.log('called the button', e)
-      this.v$.$validate()
-      e.preventDefault()
-    }
-
-    function onNextPage() {
-      this.$router.push('/')
-    }
-    const v$ = useValidate(rules, state)
-
-    return { state, v$, onSubmit, onNextPage }
-  },
-  methods: {
-    goToHome() {
-      this.$router.push('/second')
-    }
-  }
-}
-</script>
 
 <style lang="css">
 .root {

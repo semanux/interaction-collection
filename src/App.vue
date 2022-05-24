@@ -1,5 +1,8 @@
+<script setup lang="ts">
+</script>
+
 <template>
-  <FirstPage />
+  <router-view></router-view>
 </template>
 
 <style>
@@ -12,8 +15,3 @@
   margin-top: 60px;
 }
 </style>
-
-<script setup lang="ts">
-import FirstPage from './components/FirstPage.vue'
-import SecondPage from './components/SecondPage.vue'
-</script>
