@@ -1,40 +1,42 @@
 <template>
   <div class="root">
     <RadialProgressBar />
-    <!-- <form @submit="onSubmit"> -->
-    <h2>Create an Account</h2>
-    <p>
-      <input type="text" placeholder="Email" v-model="state.email" />
-      <span v-if="v$.email.$error">
-        {{ v$.email.$errors[0].$message }}
-      </span>
-    </p>
-    <p>
-      <input
-        type="password"
-        placeholder="Password"
-        v-model="state.password.password"
-      />
-      <span v-if="v$.password.password.$error">
-        {{ v$.password.password.$errors[0].$message }}
-      </span>
-    </p>
-    <p>
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        v-model="state.password.confirm"
-      />
-      <span v-if="v$.password.confirm.$error">
-        {{ v$.password.confirm.$errors[0].$message }}
-      </span>
-    </p>
-    <div class="rahul">
-      <button @click="onPrevious">Previous</button>
-      <button @click="onSubmit">Submit</button>
-      <button @click="goToHome()">Next</button>
-    </div>
-    <!-- </form> -->
+    <form @submit="onSubmit">
+      <h2>Second Page Account</h2>
+      <p>
+        <input type="text" placeholder="Email" v-model="state.email" />
+        <span v-if="v$.email.$error">
+          {{ v$.email.$errors[0].$message }}
+        </span>
+      </p>
+      <p>
+        <input
+          type="password"
+          placeholder="Password"
+          v-model="state.password.password"
+        />
+        <span v-if="v$.password.password.$error">
+          {{ v$.password.password.$errors[0].$message }}
+        </span>
+      </p>
+      <p>
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          v-model="state.password.confirm"
+        />
+        <span v-if="v$.password.confirm.$error">
+          {{ v$.password.confirm.$errors[0].$message }}
+        </span>
+      </p>
+      <div class="rahul">
+        <button @click="onPrevious">Previous</button>
+        <button @click="onSubmit">Submit</button>
+        <router-link to="/second">
+          <button @click="goToHome()">Next</button></router-link
+        >
+      </div>
+    </form>
   </div>
 </template>
 
@@ -43,9 +45,6 @@ import { reactive } from '@vue/reactivity'
 import { computed } from 'vue'
 import useValidate from '@vuelidate/core'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
-import RadialProgressBar from './RadialProgressBar.vue'
-import router from '../router/index.js'
-import SecondInput from '../components/SecondInput.vue'
 export default {
   setup() {
     const state = reactive({
@@ -80,7 +79,8 @@ export default {
   },
   methods: {
     goToHome() {
-        this.$router.push('/second')
+      // this.$router.push({ name: 'FirstInput' })
+      this.$router.push('/second')
     }
   }
 }

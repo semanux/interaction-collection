@@ -1,6 +1,5 @@
 <template>
-  <RadialProgressBar />
-  <Posts />
+  <FirstPage />
 </template>
 
 <style>
@@ -15,8 +14,6 @@
 </style>
 
 <script setup lang="ts">
-import FirstInput from './components/FirstInput.vue'
-import RadialProgressBar from './components/RadialProgressBar.vue'
-import Posts from './components/FetchInput.vue'
-import FetchInput2 from './components/FetchInput2.vue'
+import FirstPage from './components/FirstPage.vue'
+import SecondPage from './components/SecondPage.vue'
 </script>
