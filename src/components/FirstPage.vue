@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import useValidate from '@vuelidate/core'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
 import RadialProgressBar from './RadialProgressBar.vue'
-import { useRouter } from "vue-router";
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
@@ -41,12 +41,10 @@ const onNextPage = () => {
 const goToHome = () => {
   router.push('/second')
 }
-
 </script>
 
 <template>
   <div class="root">
-    <RadialProgressBar />
     <form @submit="onSubmit">
       <h2>Create an Account</h2>
       <p>
@@ -76,7 +74,7 @@ const goToHome = () => {
         </span>
       </p>
       <div class="rahul">
-        <button @click="">Previous</button>
+        <button>Previous</button>
         <button @click="onSubmit">Submit</button>
         <button @click="goToHome()">Next</button>
       </div>
