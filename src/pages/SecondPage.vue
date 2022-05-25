@@ -3,7 +3,6 @@ import { ref, reactive } from '@vue/reactivity'
 import { computed } from 'vue'
 import useValidate from '@vuelidate/core'
 import { required, email, minLength, sameAs } from '@vuelidate/validators'
-import RadialProgressBar from './RadialProgressBar.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -46,7 +45,7 @@ const goToHome = () => {
 <template>
   <div class="root">
     <form @submit="onSubmit">
-      <h2>Create an Account</h2>
+      <h2>Second Page</h2>
       <p>
         <input type="text" placeholder="Email" v-model="state.email" />
         <span v-if="validator.email.$error">
