@@ -45,7 +45,7 @@ const goToHome = () => {
 <template>
   <div class="root">
     <form @submit="onSubmit">
-      <h2>Create an Account</h2>
+      <h2>First Page</h2>
       <p>
         <input type="text" placeholder="Email" v-model="state.email" />
         <span v-if="validator.email.$error">
