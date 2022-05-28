@@ -5,20 +5,22 @@ type FormSubmissions={
     status:'pending'|'processed';
 }
 
-type BankDetails={
+type formDetails={
     formId:number
-    transactions:FormSubmissions[];
+    formSubmission:FormSubmissions[];
     email:string,
     password:string,
+    confirm:string,
 }
 export const useFormStore=defineStore('bankAccount',{
     state:()=>{
         return{
             formId: 0,
             transactions: [],
-            email: [],
-            password: [],
-        } as unknown as  BankDetails;
+            email: '',
+            password: '',
+            confirm:'',
+        } as unknown as  formDetails;
     },
     getters:{
        emailShowCaser():string{
@@ -29,7 +31,9 @@ export const useFormStore=defineStore('bankAccount',{
        }
     },
     actions:{
-       
+       emailChange(email:string){
+           return this.email=email
+       }
     }
 })
 

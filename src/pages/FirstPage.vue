@@ -4,17 +4,15 @@ import { computed } from "vue"
 import useValidate from "@vuelidate/core"
 import { required, email, minLength, sameAs } from "@vuelidate/validators"
 import { useRouter } from "vue-router"
-import { useCounterStore } from "../stores/counter"
-import { useBankAccountStore } from "../stores/bankAccount"
 import { useFormStore } from "../stores/formStore"
 
 const router = useRouter()
-
+const store = useFormStore()
 const state = reactive({
-  email: "",
+  email: store.email,
   password: {
-    password: "",
-    confirm: ""
+    password: store.password,
+    confirm: store.confirm
   }
 })
 
@@ -44,43 +42,18 @@ const goToHome = () => {
   router.push("/second")
 }
 
-const store = useBankAccountStore()
-
-//most of the important part is accessing the logic behind the store and doing some subscriptions
-
-store.$onAction(({ name, store, after }) => {
-  after((result) => {
-    if (result) {
-      store.processTransaction(result)
-    }
-  })
-})
-
-//submitting the payment
-
-const payAmount = ref(0)
-
-const submitPayment = () => {
-  if (payAmount.value) {
-    store.rahulpayment(payAmount.value)
-    payAmount.value = 0
-  }
-}
-
-//linking the FirstPage with FormStore
-
-const storeNew = useFormStore()
+console.log("store", store.emailShowCaser)
 </script>
 
 <template>
   <div class="root">
     <form @submit="onSubmit">
-      <h2>Create an ccount</h2>
+      <h2>First Page</h2>
       <p>
         <input
           type="text"
           placeholder="Email"
-          v-model="storeNew.emailShowCaser"
+          v-model="store.emailShowCaser"
         />
         <span v-if="validator.email.$error">
           {{ validator.email.$errors[0].$message }}
@@ -90,7 +63,7 @@ const storeNew = useFormStore()
         <input
           type="password"
           placeholder="Password"
-          v-model="storeNew.passWordShowCaser"
+          v-model="store.passWordShowCaser"
         />
         <span v-if="validator.password.password.$error">
           {{ validator.password.password.$errors[0].$message }}

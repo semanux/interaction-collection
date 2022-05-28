@@ -7,12 +7,12 @@ import { useRouter } from "vue-router"
 import { useFormStore } from "../stores/formStore"
 
 const router = useRouter()
-
+const store = useFormStore()
 const state = reactive({
-  email: "",
+  email: store.email,
   password: {
-    password: "",
-    confirm: ""
+    password: store.password,
+    confirm: store.confirm
   }
 })
 
@@ -41,7 +41,6 @@ const onNextPage = () => {
 const goToHome = () => {
   router.push("/second")
 }
-const store = useFormStore()
 
 console.log("store", store.emailShowCaser)
 </script>
