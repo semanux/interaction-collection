@@ -30,7 +30,12 @@ const validator = useValidate(rules, state)
 
 const onSubmit = (e: Event) => {
   console.log("called the button", e)
-  validator.value.$validate()
+  // validator.value.$validate()
+  store.emailChange(store.email)
+  store.passWord(store.password)
+  store.passWordConfirm(store.confirm)
+
+  router.push("/")
   e.preventDefault()
 }
 
@@ -53,7 +58,7 @@ console.log("store", store.emailShowCaser)
         <input
           type="text"
           placeholder="Email"
-          v-model="store.emailShowCaser"
+          v-model="store.email"
         />
         <span v-if="validator.email.$error">
           {{ validator.email.$errors[0].$message }}
@@ -63,7 +68,7 @@ console.log("store", store.emailShowCaser)
         <input
           type="password"
           placeholder="Password"
-          v-model="store.passWordShowCaser"
+          v-model="store.password"
         />
         <span v-if="validator.password.password.$error">
           {{ validator.password.password.$errors[0].$message }}
@@ -73,7 +78,7 @@ console.log("store", store.emailShowCaser)
         <input
           type="password"
           placeholder="Confirm Password"
-          v-model="state.password.confirm"
+          v-model="store.confirm"
         />
         <span v-if="validator.password.confirm.$error">
           {{ validator.password.confirm.$errors[0].$message }}

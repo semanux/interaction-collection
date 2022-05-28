@@ -12,7 +12,7 @@ type formDetails={
     password:string,
     confirm:string,
 }
-export const useFormStore=defineStore('bankAccount',{
+export const useFormStore=defineStore('formStore',{
     state:()=>{
         return{
             formId: 0,
@@ -33,7 +33,13 @@ export const useFormStore=defineStore('bankAccount',{
     actions:{
        emailChange(email:string){
            return this.email=email
-       }
+       },
+       passWordConfirm(confirm:string){
+           return this.confirm=confirm
+       },
+       passWord(password:string){
+            return this.password=password
+        },
     }
 })
 
