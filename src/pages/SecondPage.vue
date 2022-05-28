@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ref, reactive } from '@vue/reactivity'
-import { computed } from 'vue'
-import useValidate from '@vuelidate/core'
-import { required, email, minLength, sameAs } from '@vuelidate/validators'
-import { useRouter } from 'vue-router'
+import { ref, reactive } from "@vue/reactivity"
+import { computed } from "vue"
+import useValidate from "@vuelidate/core"
+import { required, email, minLength, sameAs } from "@vuelidate/validators"
+import { useRouter } from "vue-router"
+import { useFormStore } from "../stores/formStore"
 
 const router = useRouter()
 
 const state = reactive({
-  email: '',
+  email: "",
   password: {
-    password: '',
-    confirm: ''
+    password: "",
+    confirm: ""
   }
 })
 
@@ -28,18 +29,21 @@ const rules = computed(() => {
 const validator = useValidate(rules, state)
 
 const onSubmit = (e: Event) => {
-  console.log('called the button', e)
+  console.log("called the button", e)
   validator.value.$validate()
   e.preventDefault()
 }
 
 const onNextPage = () => {
-  router.push('/')
+  router.push("/")
 }
 
 const goToHome = () => {
-  router.push('/second')
+  router.push("/second")
 }
+const store = useFormStore()
+
+console.log("store", store.emailShowCaser)
 </script>
 
 <template>
@@ -47,7 +51,11 @@ const goToHome = () => {
     <form @submit="onSubmit">
       <h2>Second Page</h2>
       <p>
-        <input type="text" placeholder="Email" v-model="state.email" />
+        <input
+          type="text"
+          placeholder="Email"
+          v-model="store.emailShowCaser"
+        />
         <span v-if="validator.email.$error">
           {{ validator.email.$errors[0].$message }}
         </span>
@@ -56,7 +64,7 @@ const goToHome = () => {
         <input
           type="password"
           placeholder="Password"
-          v-model="state.password.password"
+          v-model="store.passWordShowCaser"
         />
         <span v-if="validator.password.password.$error">
           {{ validator.password.password.$errors[0].$message }}

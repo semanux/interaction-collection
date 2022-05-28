@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { ref, reactive } from '@vue/reactivity'
-import { computed } from 'vue'
-import useValidate from '@vuelidate/core'
-import { required, email, minLength, sameAs } from '@vuelidate/validators'
-import { useRouter } from 'vue-router'
+import { ref, reactive } from "@vue/reactivity"
+import { computed } from "vue"
+import useValidate from "@vuelidate/core"
+import { required, email, minLength, sameAs } from "@vuelidate/validators"
+import { useRouter } from "vue-router"
+import { useCounterStore } from "../stores/counter"
+import { useBankAccountStore } from "../stores/bankAccount"
+import { useFormStore } from "../stores/formStore"
 
 const router = useRouter()
 
 const state = reactive({
-  email: '',
+  email: "",
   password: {
-    password: '',
-    confirm: ''
+    password: "",
+    confirm: ""
   }
 })
 
@@ -28,26 +31,57 @@ const rules = computed(() => {
 const validator = useValidate(rules, state)
 
 const onSubmit = (e: Event) => {
-  console.log('called the button', e)
+  console.log("called the button", e)
   validator.value.$validate()
   e.preventDefault()
 }
 
 const onNextPage = () => {
-  router.push('/')
+  router.push("/")
 }
 
 const goToHome = () => {
-  router.push('/second')
+  router.push("/second")
 }
+
+const store = useBankAccountStore()
+
+//most of the important part is accessing the logic behind the store and doing some subscriptions
+
+store.$onAction(({ name, store, after }) => {
+  after((result) => {
+    if (result) {
+      store.processTransaction(result)
+    }
+  })
+})
+
+//submitting the payment
+
+const payAmount = ref(0)
+
+const submitPayment = () => {
+  if (payAmount.value) {
+    store.rahulpayment(payAmount.value)
+    payAmount.value = 0
+  }
+}
+
+//linking the FirstPage with FormStore
+
+const storeNew = useFormStore()
 </script>
 
 <template>
   <div class="root">
     <form @submit="onSubmit">
-      <h2>First Page</h2>
+      <h2>Create an ccount</h2>
       <p>
-        <input type="text" placeholder="Email" v-model="state.email" />
+        <input
+          type="text"
+          placeholder="Email"
+          v-model="storeNew.emailShowCaser"
+        />
         <span v-if="validator.email.$error">
           {{ validator.email.$errors[0].$message }}
         </span>
@@ -56,7 +90,7 @@ const goToHome = () => {
         <input
           type="password"
           placeholder="Password"
-          v-model="state.password.password"
+          v-model="storeNew.passWordShowCaser"
         />
         <span v-if="validator.password.password.$error">
           {{ validator.password.password.$errors[0].$message }}
