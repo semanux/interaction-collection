@@ -11,16 +11,12 @@ const store = useFormStore()
 const state = reactive({
   email: store.email,
   password: store.password,
-  confirm: store.confirm
 })
 
 const rules = computed(() => {
   return {
     email: { required, email },
-    password: {
-      password: { required, minLength: minLength(6) },
-      confirm: { required, sameAs: sameAs(state.confirm) }
-    }
+    password: { required, minLength: minLength(6) },
   }
 })
 
@@ -29,9 +25,8 @@ const validator = useValidate(rules, state)
 const onSubmit = (e: Event) => {
   console.log("called the button", e)
   // validator.value.$validate()
-  store.emailChange(store.email)
-  store.passWord(store.password)
-  store.passWordConfirm(store.confirm)
+  store.setEmail(store.email)
+  store.setPassword(store.password)
   router.push("/second")
 
   e.preventDefault()
@@ -45,7 +40,7 @@ const goToHome = () => {
   router.push("/second")
 }
 
-console.log("store", store.emailShowCaser)
+// console.log("store", store.emailShowCaser)
 </script>
 
 <template>
@@ -68,10 +63,11 @@ console.log("store", store.emailShowCaser)
           placeholder="Password"
           v-model="store.password"
         />
-        <span v-if="validator.password.password.$error">
-          {{ validator.password.password.$errors[0].$message }}
+        <span v-if="validator.password.$error">
+          {{ validator.password.$errors[0].$message }}
         </span>
       </p>
+      <!--
       <p>
         <input
           type="password"
@@ -82,6 +78,7 @@ console.log("store", store.emailShowCaser)
           {{ validator.password.confirm.$errors[0].$message }}
         </span>
       </p>
+      -->
       <div class="rahul">
         <button>Previous</button>
         <button @click="onSubmit">Submit</button>
