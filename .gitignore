@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+src/template
+src/stores/bankAccount.ts
+src/stores/counter.ts
 
 # Editor directories and files
 .vscode/*
