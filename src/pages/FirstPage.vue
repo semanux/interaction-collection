@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive } from "@vue/reactivity"
 import { computed } from "vue"
-import useValidate from "@vuelidate/core"
-import { required, email, minLength, sameAs } from "@vuelidate/validators"
 import { useRouter } from "vue-router"
 import { useFormStore } from "../stores/formStore"
 
@@ -13,14 +11,7 @@ const state = reactive({
   password: store.password,
 })
 
-const rules = computed(() => {
-  return {
-    email: { required, email },
-    password: { required, minLength: minLength(6) },
-  }
-})
-
-const validator = useValidate(rules, state)
+ 
 
 const onSubmit = (e: Event) => {
   console.log("called the button", e)
@@ -67,7 +58,6 @@ const goToHome = () => {
           {{ validator.password.$errors[0].$message }}
         </span>
       </p>
-      <!--
       <p>
         <input
           type="password"
@@ -78,7 +68,6 @@ const goToHome = () => {
           {{ validator.password.confirm.$errors[0].$message }}
         </span>
       </p>
-      -->
       <div class="rahul">
         <button>Previous</button>
         <button @click="onSubmit">Submit</button>

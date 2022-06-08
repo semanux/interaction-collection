@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive } from "@vue/reactivity"
 import { computed } from "vue"
-import useValidate from "@vuelidate/core"
-import { required, email, minLength, sameAs } from "@vuelidate/validators"
 import { useRouter } from "vue-router"
 import { useFormStore } from "../stores/formStore"
 
@@ -10,32 +8,18 @@ const router = useRouter()
 const store = useFormStore()
 const state = reactive({
   email: store.email,
-  password: {
-    password: store.password,
-    confirm: store.confirm
-  }
+  password: store.password,
 })
 
-const rules = computed(() => {
-  return {
-    email: { required, email },
-    password: {
-      password: { required, minLength: minLength(6) },
-      confirm: { required, sameAs: sameAs(state.password.password) }
-    }
-  }
-})
-
-const validator = useValidate(rules, state)
+ 
 
 const onSubmit = (e: Event) => {
   console.log("called the button", e)
   // validator.value.$validate()
-  store.emailChange(store.email)
-  store.passWord(store.password)
-  store.passWordConfirm(store.confirm)
+  store.setEmail(store.email)
+  store.setPassword(store.password)
+  router.push("/second")
 
-  router.push("/")
   e.preventDefault()
 }
 
@@ -47,13 +31,13 @@ const goToHome = () => {
   router.push("/second")
 }
 
-console.log("store", store.emailShowCaser)
+// console.log("store", store.emailShowCaser)
 </script>
 
 <template>
   <div class="root">
     <form @submit="onSubmit">
-      <h2>Second Page</h2>
+      <h2>First Page</h2>
       <p>
         <input
           type="text"
@@ -70,8 +54,8 @@ console.log("store", store.emailShowCaser)
           placeholder="Password"
           v-model="store.password"
         />
-        <span v-if="validator.password.password.$error">
-          {{ validator.password.password.$errors[0].$message }}
+        <span v-if="validator.password.$error">
+          {{ validator.password.$errors[0].$message }}
         </span>
       </p>
       <p>
