@@ -36,7 +36,6 @@ function onSubmit(values) {
 
 <template>
     <div class="card m-3">
-        <h5 class="card-header">Vue 3 + VeeValidate - Form Validation Example (Composition API)</h5>
         <div class="card-body">
             <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }  ">
                 <div class="form-row">
