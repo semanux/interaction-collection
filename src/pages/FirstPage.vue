@@ -1,111 +1,101 @@
-<script setup lang="ts">
-import { ref, reactive } from "@vue/reactivity"
-import { computed } from "vue"
+<script setup>
+import { Form, Field } from 'vee-validate';
 import { useRouter } from "vue-router"
-import { useFormStore } from "../stores/formStore"
 
-const router = useRouter()
-const store = useFormStore()
-const state = reactive({
-  email: store.email,
-  password: store.password,
-})
+import * as Yup from 'yup';
 
- 
+const router=useRouter()
+const schema = Yup.object().shape({
+    title: Yup.string()
+        .required('Title is required'),
+    firstName: Yup.string()
+        .required('First Name is required'),
+    lastName: Yup.string()
+        .required('Last name is required'),
+    dob: Yup.string()
+        .required('Date of Birth is required')
+        .matches(/^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/, 'Date of Birth must be a valid date in the format YYYY-MM-DD'),
+    email: Yup.string()
+        .required('Email is required')
+        .email('Email is invalid'),
+    password: Yup.string()
+        .min(6, 'Password must be at least 6 characters')
+        .required('Password is required'),
+    confirmPassword: Yup.string()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+        .required('Confirm Password is required'),
+    acceptTerms: Yup.string()
+        .required('Accept Ts & Cs is required')
+});
 
-const onSubmit = (e: Event) => {
-  console.log("called the button", e)
-  // validator.value.$validate()
-  store.setEmail(store.email)
-  store.setPassword(store.password)
-  router.push("/second")
-
-  e.preventDefault()
+function onSubmit(values) {
+    // display form values on success 
+    router.push('/second')
 }
-
-const onNextPage = () => {
-  router.push("/")
-}
-
-const goToHome = () => {
-  router.push("/second")
-}
-
-// console.log("store", store.emailShowCaser)
 </script>
 
 <template>
-  <div class="root">
-    <form @submit="onSubmit">
-      <h2>First Page</h2>
-      <p>
-        <input
-          type="text"
-          placeholder="Email"
-          v-model="store.email"
-        />
-        <span v-if="validator.email.$error">
-          {{ validator.email.$errors[0].$message }}
-        </span>
-      </p>
-      <p>
-        <input
-          type="password"
-          placeholder="Password"
-          v-model="store.password"
-        />
-        <span v-if="validator.password.$error">
-          {{ validator.password.$errors[0].$message }}
-        </span>
-      </p>
-      <p>
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          v-model="store.confirm"
-        />
-        <span v-if="validator.password.confirm.$error">
-          {{ validator.password.confirm.$errors[0].$message }}
-        </span>
-      </p>
-      <div class="rahul">
-        <button>Previous</button>
-        <button @click="onSubmit">Submit</button>
-        <button @click="goToHome()">Next</button>
-      </div>
-    </form>
-  </div>
+    <div class="card m-3">
+        <h5 class="card-header">Vue 3 + VeeValidate - Form Validation Example (Composition API)</h5>
+        <div class="card-body">
+            <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }  ">
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Title</label>
+                        <Field name="title" as="select" class="form-control" :class="{ 'is-invalid': errors.title }">
+                            <option value=""></option>
+                            <option value="Mr">Mr</option>
+                            <option value="Mrs">Mrs</option>
+                            <option value="Miss">Miss</option>
+                            <option value="Ms">Ms</option>
+                        </Field>
+                        <div class="invalid-feedback">{{errors.title}}</div>
+                    </div>
+                    <div class="form-group col-5">
+                        <label>First Name</label>
+                        <Field name="firstName" type="text" class="form-control" :class="{ 'is-invalid': errors.firstName }" />
+                        <div class="invalid-feedback">{{errors.firstName}}</div>
+                    </div>
+                    <div class="form-group col-5">
+                        <label>Last Name</label>
+                        <Field name="lastName" type="text" class="form-control" :class="{ 'is-invalid': errors.lastName }" />
+                        <div class="invalid-feedback">{{errors.lastName}}</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Date of Birth</label>
+                        <Field name="dob" type="date" class="form-control" :class="{ 'is-invalid': errors.dob }" />
+                        <div class="invalid-feedback">{{errors.dob}}</div>
+                    </div>
+                    <div class="form-group col">
+                        <label>Email</label>
+                        <Field name="email" type="text" class="form-control" :class="{ 'is-invalid': errors.email }" />
+                        <div class="invalid-feedback">{{errors.email}}</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col">
+                        <label>Password</label>
+                        <Field name="password" type="password" class="form-control" :class="{ 'is-invalid': errors.password }" />
+                        <div class="invalid-feedback">{{errors.password}}</div>
+                    </div>
+                    <div class="form-group col">
+                        <label>Confirm Password</label>
+                        <Field name="confirmPassword" type="password" class="form-control" :class="{ 'is-invalid': errors.confirmPassword }" />
+                        <div class="invalid-feedback">{{errors.confirmPassword}}</div>
+                    </div>
+                </div>
+                <div class="form-group form-check">
+                    <Field name="acceptTerms" type="checkbox" id="acceptTerms" value="true" class="form-check-input" :class="{ 'is-invalid': errors.acceptTerms }" />
+                    <label for="acceptTerms" class="form-check-label">Accept Terms & Conditions</label>
+                    <div class="invalid-feedback">{{errors.acceptTerms}}</div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary mr-1">Register</button>
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                </div>
+            </Form>
+        </div>
+    </div>    
 </template>
-
-<style lang="css">
-.root {
-  width: 400px;
-  margin: 0 auto;
-  background-color: white;
-  padding: 30px;
-  margin-top: 100px;
-  border-radius: 20px;
-}
-.rahul {
-  display: flex;
-  justify-content: space-between;
-}
-
-input {
-  border: none;
-  outline: none;
-  border-bottom: 1px solid #ddd;
-  font-size: 1em;
-  padding: 5px 0;
-  margin: 10px 0 5px 0;
-  width: 100%;
-}
-
-button {
-  background-color: #3498db;
-  padding: 10px 20px;
-  margin-top: 10px;
-  border: none;
-  color: white;
-}
-</style>
