@@ -3,6 +3,7 @@ import { useForm, useField } from "vee-validate"
 import * as yup from "yup"
 import { useFormStore } from "../stores/formStore"
 import { useRouter } from "vue-router"
+import PageNumber from "../components/PageNumber.vue"
 
 const store = useFormStore()
 const router = useRouter()
@@ -29,15 +30,18 @@ const onSubmit = () => {
 </script>
 
 <template>
-  <form @submit="onSubmit">
-    <input v-model="email" />
-    <span>{{ errors.email }}</span>
-    <br>
-    <input
-      v-model="password"
-      type="password"
-    />
-    <span>{{ errors.password }}</span>
-    <button>Submit</button>
-  </form>
+  <div>
+    <PageNumber />
+    <form @submit="onSubmit">
+      <input v-model="email" />
+      <span>{{ errors.email }}</span>
+      <br>
+      <input
+        v-model="password"
+        type="password"
+      />
+      <span>{{ errors.password }}</span>
+      <button>Submit</button>
+    </form>
+  </div>
 </template>
