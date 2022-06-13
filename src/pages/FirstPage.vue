@@ -39,13 +39,13 @@ export default {
     })
 
     // No need to define rules for fields
-    const { value: email } = useField("email")
-    const { value: password } = useField("password")
+    const { email } = useField("email")
+    const { password } = useField("password")
 
     const onSubmit = () => {
-      console.log("value of the value field", value.email)
-      // store.setEmail(value.email)
-      // store.setPassword(value.password)
+      console.log("value of the value field", email)
+      store.setEmail(email)
+      store.setPassword(password)
       router.push("/second")
     }
 
