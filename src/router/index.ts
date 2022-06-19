@@ -9,12 +9,12 @@ const routes = [
     component: FirstPage
   },
   {
-    path: '/2',
+    path: '/2/70',
     name: 'second',
     component: SecondPage,
   },
   {
-    path: '/3',
+    path: '/3/70',
     name: 'third',
     component: ThirdPage,
   }
