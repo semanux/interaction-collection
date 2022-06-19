@@ -10,8 +10,8 @@ console.log("value of the id params===", router.query.name)
 
 <template>
   <p>
-    {{path}}
-    {{path2}}
+    Current Page No: {{path}}
+    Total Page No:{{path2}}
 
   </p>
 </template>
