@@ -4,6 +4,9 @@ import * as yup from "yup"
 import { useFormStore } from "../stores/formStore"
 import { useRouter } from "vue-router"
 import PageNumber from "../components/PageNumber.vue"
+import RecorderVue from "../components/RecordingComponent/Recorder.vue"
+import RecorderPOCVue from "../components/RecorderPOC/RecorderPOC.vue"
+import NewRecordVue from "../components/RecorderPOC/NewRecord.vue"
 
 const store = useFormStore()
 const router = useRouter()
@@ -31,7 +34,10 @@ const onSubmit = () => {
 
 <template>
   <div>
-    <PageNumber />
+    <!-- <PageNumber /> -->
+    <!-- <RecorderVue /> -->
+    <!-- <RecorderPOCVue /> -->
+    <NewRecordVue />
     <form @submit="onSubmit">
       <input v-model="email" />
       <span>{{ errors.email }}</span>
