@@ -32,6 +32,7 @@ const onSubmit = () => {
 <template>
   <div>
     <PageNumber />
+    <h1>The user is {{ $route.params.id}}</h1>
     <form @submit="onSubmit">
       <input v-model="email" />
       <span>{{ errors.email }}</span>

@@ -3,7 +3,7 @@ import { useForm, useField } from "vee-validate"
 import * as yup from "yup"
 import { useFormStore } from "../stores/formStore"
 import { useRouter } from "vue-router"
-import NewRecordVue from "../components/RecorderPOC/NewRecord.vue"
+import NewRecordVue from "../components/RecordComponent.vue"
 
 const store = useFormStore()
 const router = useRouter()
@@ -38,6 +38,7 @@ const onSubmit = () => {
     <form @submit="onSubmit">
       <input v-model="email" />
       <span>{{ errors.email }}</span>
+      <!-- <h1>The user is {{ $route.params.id}}</h1> -->
       <br>
       <input
         v-model="password"
