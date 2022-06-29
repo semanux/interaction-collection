@@ -15,5 +15,12 @@ export const useFormStore = defineStore("formStore", () => {
     password.value = newPassword;
   }
 
-  return { email, setEmail, password, setPassword }
+  //Storing the audio in Pinia
+
+  const recorder = ref(null as null | MediaRecorder);
+
+  const setRecorder=(newRecorder: null| MediaRecorder)=>{
+    recorder.value=newRecorder
+  }
+  return { email, setEmail, password, setPassword , recorder, setRecorder}
 });

@@ -33,10 +33,13 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useFormStore } from "../stores/formStore";
 
 const newAudio = ref(null as null | MediaSource | Blob);
 const recorder = ref(null as null | MediaRecorder);
 
+
+const store=useFormStore()
 const newAudioURL = computed(() => {
   if(newAudio.value !== null) {
     return URL.createObjectURL(newAudio.value);
@@ -58,18 +61,22 @@ const record = async () => {
   recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
     if (e.data.size > 0) {
       recordedChunks.push(e.data);
+      //ISSUE
+      console.log('value of the recorder.value',recorder.value)
+      store.setRecorder(recorder.value)
     }
   })
 
   recorder.value.addEventListener("stop", () => {
     newAudio.value = new Blob(recordedChunks);
-    console.log(newAudio);
+    console.log('value of the newaudio',newAudio.value);
   })
 
   recorder.value.start();
 
 }
 const stop = async () => {
+  store.setRecorder(recorder.value)
   recorder.value?.stop();
   recorder.value = null;
 }
