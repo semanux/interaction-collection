@@ -16,10 +16,10 @@ export const useFormStore = defineStore("formStore", () => {
   }
 
   //Storing the audio in Pinia
+  const recorder=ref(null as null | Array<any>)
+  // const recorder = ref(null as null | MediaRecorder);
 
-  const recorder = ref(null as null | MediaRecorder);
-
-  const setRecorder=(newRecorder: null| MediaRecorder)=>{
+  const setRecorder=(newRecorder: null| Array<any>)=>{
     recorder.value=newRecorder
   }
   return { email, setEmail, password, setPassword , recorder, setRecorder}
