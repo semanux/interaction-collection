@@ -18,7 +18,7 @@ const routes = [
     path: "/3/70",
     name: "third",
     component: ThirdPage
-  },
+  },  
   { path: "/semanux/form/:id", component: SecondPage }, 
   {
     path: "/:catchAll(.*)",
