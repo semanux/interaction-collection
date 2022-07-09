@@ -1,86 +1,73 @@
 <template>
-
   <div>
     <h5>Record Audio</h5>
-    <button
-      v-if="!recorder"
-      @click="record()"
-    >
-      Record Voice
-    </button>
-
-    <button
-      v-else
-      @click="stop()"
-    >
-      Stop
-    </button>
-
+    <button v-if="!recorder" @click="record()">Record Voice</button>
+    <button v-else @click="stop()">Stop</button>
     <br />
-
-    <audio
-      v-if="newAudio"
-      :src="newAudioURL"
-      controls
-      controlsList="nodownload"
-    />
-
+    <div>
+      <li v-for="n in recordedChunks">
+        <audio
+          v-if="newAudio"
+          :src="newAudioURL"
+          controls
+          controlsList="nodownload"
+        />
+      </li>
+    </div>
     <hr />
-
   </div>
-
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useFormStore } from "../stores/formStore";
+import { computed, ref } from "vue"
+import { useFormStore } from "../stores/formStore"
 
-const newAudio = ref(null as null | MediaSource | Blob);
-const recorder = ref(null as null | MediaRecorder);
+const newAudio = ref(null as null | MediaSource | Blob)
+const recorder = ref(null as null | MediaRecorder)
 
-
-const store=useFormStore()
+const store = useFormStore()
 const newAudioURL = computed(() => {
-  if(newAudio.value !== null) {
-    return URL.createObjectURL(newAudio.value);
+  if (newAudio.value !== null) {
+    return URL.createObjectURL(newAudio.value)
   }
-  return undefined;
-});
+  return undefined
+})
 
 const record = async () => {
-  newAudio.value = null;
+  newAudio.value = null
   const stream = await navigator.mediaDevices.getUserMedia({
     audio: true,
-    video: false,
-  });
+    video: false
+  })
 
-  const options = { mimeType: "audio/webm" };
-  const recordedChunks = [] as Array<any>;  
-  recorder.value = new MediaRecorder(stream, options);
-
+  const options = { mimeType: "audio/webm" }
+  const recordedChunks = [] as Array<any>
+  recorder.value = new MediaRecorder(stream, options)
+  const i = 0
   recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
     if (e.data.size > 0) {
-      recordedChunks.push(e.data);
+      recordedChunks.push(e.data)
       //ISSUE
-      console.log('value of the recorder.value',recorder.value)
+      console.log("value of the recorder.value", recorder.value)
       // store.setRecorder(recorder.value)
       // store.setRecorder(e.data)
-      store.setRecorder(recordedChunks)
+      console.log("recorded chunks length", recordedChunks.length)
+      store.setRecorder(recordedChunks[i])
     }
   })
 
+  console.log("recorded chunks length", recordedChunks.length)
+
   recorder.value.addEventListener("stop", () => {
-    newAudio.value = new Blob(recordedChunks);
-    console.log('value of the newaudio',newAudio.value);
+    newAudio.value = new Blob(recordedChunks)
+    console.log("value of the newaudio", newAudio.value)
   })
 
-  recorder.value.start();
-
+  recorder.value.start()
 }
 const stop = async () => {
   store.setRecorder(recorder.value)
-  recorder.value?.stop();
-  recorder.value = null;
+  recorder.value?.stop()
+  recorder.value = null
 }
-
 </script>
