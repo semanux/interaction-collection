@@ -1,13 +1,13 @@
-<template>
-  <component :is="PageComp" />
-</template>
-
-<script>
+<script setup>
+import FirstPage from "../pages/FirstPage.vue"
+import SecondPage from "../pages/SecondPage.vue"
+import ThirdPage from "../pages/ThirdPage.vue"
 import { useRouter, useRoute } from "vue-router"
+import { ref } from "vue"
 
 const route = useRoute()
 const router = useRouter()
-const PageComp = ref(1)
+const PageComp = ref()
 
 watch(
   () => route.params.id,
@@ -21,3 +21,9 @@ watch(
   { immediate: true }
 )
 </script>
+
+<template>
+  <component :is="FirstPage" />
+  <component :is="SecondPage" />
+  <component :is="ThirdPage" />
+</template>
