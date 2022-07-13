@@ -3,7 +3,7 @@ import FirstPage from "../pages/FirstPage.vue"
 import SecondPage from "../pages/SecondPage.vue"
 import ThirdPage from "../pages/ThirdPage.vue"
 import { useRouter, useRoute } from "vue-router"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 
 const route = useRoute()
 const router = useRouter()
