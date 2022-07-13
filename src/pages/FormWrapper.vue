@@ -23,7 +23,5 @@ watch(
 </script>
 
 <template>
-  <component :is="FirstPage" />
-  <component :is="SecondPage" />
-  <component :is="ThirdPage" />
+  <component :is="PageComp" />
 </template>
