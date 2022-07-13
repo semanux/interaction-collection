@@ -42,6 +42,8 @@ const record = async () => {
   const options = { mimeType: "audio/webm" }
   const recordedChunks = [] as Array<any>
   recorder.value = new MediaRecorder(stream, options)
+
+  // Dataavailable is called after the recording ended.
   recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
     if (e.data.size > 0) {
       recordedChunks.push(e.data)
@@ -64,7 +66,7 @@ const record = async () => {
   recorder.value.start()
 }
 const stop = async () => {
-  store.setRecorder(recorder.value)
+  //store.setRecorder(recorder.value)
   recorder.value?.stop()
   recorder.value = null
 }

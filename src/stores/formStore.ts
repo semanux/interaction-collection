@@ -18,9 +18,18 @@ export const useFormStore = defineStore("formStore", () => {
   const recorder = ref(null as null | Array<any>)
   // const recorder = ref(null as null | MediaRecorder);
 
-  const setRecorder = (newRecorder: null | Array<any>) => {
-    recorder.value = newRecorder
+  const pushRecording = (newRecorder: null | Array<any>) => {
+    const id = generateUniqueId():
+    recordings.value?.push({id, newBlob});
+    return id;
   }
+
+  const deleteRecording = (id) => {
+    filter for id
+  }
+
+  const getRecording(id) => blob
+
   const filterRecorder =
     (index: BigInteger) => (newRecorder: null | Array<any>) => {
       recorder.value?.filter((index) => index.id !== index)
