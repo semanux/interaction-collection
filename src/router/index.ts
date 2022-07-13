@@ -24,11 +24,6 @@ const routes = [
     path: "/semanux/form/:id",
     component: FormWrapper
   },
-  // {
-  //   path: "/semanux/form/:id",
-  //   component: () => import("../pages/" + location.pathname.slice(1) + ".vue")
-  // },import { vue } from '@vitejs/plugin-vue';
-
   {
     path: "/:catchAll(.*)",
     component: NotFound
