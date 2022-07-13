@@ -1,8 +1,9 @@
-import { createWebHistory, createRouter } from "vue-router"
+import { createWebHistory, createRouter, useRoute } from "vue-router"
 import FirstPage from "../pages/FirstPage.vue"
 import SecondPage from "../pages/SecondPage.vue"
 import ThirdPage from "../pages/ThirdPage.vue"
 import NotFound from "../components/NotFound.vue"
+import FormWrapper from "../pages/FormWrapper.vue"
 const routes = [
   {
     path: "/",
@@ -19,7 +20,15 @@ const routes = [
     name: "third",
     component: ThirdPage
   },
-  { path: "/semanux/form/:id", component: SecondPage },
+  {
+    path: "/semanux/form/:id",
+    component: FormWrapper
+  },
+  // {
+  //   path: "/semanux/form/:id",
+  //   component: () => import("../pages/" + location.pathname.slice(1) + ".vue")
+  // },import { vue } from '@vitejs/plugin-vue';
+
   {
     path: "/:catchAll(.*)",
     component: NotFound
