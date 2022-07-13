@@ -4,15 +4,14 @@
     <button v-if="!recorder" @click="record()">Record Voice</button>
     <button v-else @click="stop()">Stop</button>
     <br />
-    <div>
-      <li v-for="n in recordedChunks">
-        <audio
-          v-if="newAudio"
-          :src="newAudioURL"
-          controls
-          controlsList="nodownload"
-        />
-      </li>
+    <div className="box" style="box" v-for="(recordedChunk, index) in 3">
+      <audio
+        v-if="newAudio"
+        :src="newAudioURL"
+        controls
+        controlsList="nodownload"
+      />
+      <button @click="deleteEvents(0)">Delete</button>
     </div>
     <hr />
   </div>
@@ -43,7 +42,6 @@ const record = async () => {
   const options = { mimeType: "audio/webm" }
   const recordedChunks = [] as Array<any>
   recorder.value = new MediaRecorder(stream, options)
-  const i = 0
   recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
     if (e.data.size > 0) {
       recordedChunks.push(e.data)
@@ -52,7 +50,7 @@ const record = async () => {
       // store.setRecorder(recorder.value)
       // store.setRecorder(e.data)
       console.log("recorded chunks length", recordedChunks.length)
-      store.setRecorder(recordedChunks[i])
+      store.setRecorder(recordedChunks)
     }
   })
 
@@ -70,4 +68,19 @@ const stop = async () => {
   recorder.value?.stop()
   recorder.value = null
 }
+
+const deleteEvents = async (index) => {
+  console.log("deletingEventTriggered")
+  await store.filterRecorder(index)
+}
 </script>
+
+<style>
+.box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  padding: 5px;
+}
+</style>
