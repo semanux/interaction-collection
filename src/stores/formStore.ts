@@ -18,9 +18,12 @@ export const useFormStore = defineStore("formStore", () => {
   const recorder = ref(null as null | Array<any>)
   // const recorder = ref(null as null | MediaRecorder);
 
+  //setRecorded function for the array
   const setRecorder = (newRecorder: null | Array<any>) => {
     recorder.value = newRecorder
   }
+
+  //filterRecorder function
   const filterRecorder =
     (index: BigInteger) => (newRecorder: null | Array<any>) => {
       recorder.value?.filter((index) => index.id !== index)

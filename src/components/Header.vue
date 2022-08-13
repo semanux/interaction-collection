@@ -3,6 +3,7 @@ import { ref, reactive } from "@vue/reactivity"
 import { computed } from "vue"
 import { useRouter } from "vue-router"
 
+//headerComponent
 const router = useRouter()
 </script>
 

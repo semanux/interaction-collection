@@ -4,7 +4,8 @@
     <button v-if="!recorder" @click="record()">Record Voice</button>
     <button v-else @click="stop()">Stop</button>
     <br />
-    <div className="box" style="box" v-for="(recordedChunk, index) in 3">
+    <!-- Record Audio compoent -->
+    <div className="box" style="box" v-for="(recordedChunk, index) in 1">
       <audio
         v-if="newAudio"
         :src="newAudioURL"
@@ -21,9 +22,13 @@
 import { computed, ref } from "vue"
 import { useFormStore } from "../stores/formStore"
 
+
+//newAudio and Recorder  ref (with mediaSource + null + blob)
 const newAudio = ref(null as null | MediaSource | Blob)
 const recorder = ref(null as null | MediaRecorder)
 
+
+//useForm --> piniaStore to save the content to from recordedChunks ref
 const store = useFormStore()
 const newAudioURL = computed(() => {
   if (newAudio.value !== null) {
@@ -32,6 +37,7 @@ const newAudioURL = computed(() => {
   return undefined
 })
 
+//record function to sync the function value
 const record = async () => {
   newAudio.value = null
   const stream = await navigator.mediaDevices.getUserMedia({

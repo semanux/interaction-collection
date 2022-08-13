@@ -21,6 +21,7 @@ const { errors } = useForm({
 const { value: email } = useField("email")
 const { value: password } = useField("password")
 
+//onSubmit function to store the value in the store
 const onSubmit = () => {
   console.log("value of the email field", email.value)
   store.setEmail(email.value as string)
