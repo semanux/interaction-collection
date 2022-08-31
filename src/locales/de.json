@@ -1,0 +1,67 @@
+{
+  "bottom": {
+    "legal": {
+      "text": "{imprint} und {dataPrivacy}",
+      "imprint": "Impressum",
+      "data-privacy": "Datenschutzerklärung",
+      "imprint-link": "https://semanux.com/de/imprint",
+      "data-privacy-link": "https://semanux.com/de/data-privacy"
+    },
+    "locale": {
+      "en": "Englisch",
+      "de": "Deutsch"
+    }
+  },
+  "validation": {
+    "required": "Dieses Feld ist notwendig.",
+    "email-required": "Die E-Mail-Addresse ist notwendig.",
+    "email-invalid": "Die E-Mail-Addresse ist nicht valide.",
+    "password-required": "Das Passwort ist notwendig.",
+    "password-length": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+    "password-unmatch": "Beide Passwörter müssen übereinstimmen.",
+    "firstname-required": "Der Vorname ist notwendig.",
+    "lastname-required": "Der Nachname ist notwendig."
+  },
+  "sign-in-up": {
+    "sign-in-title": "Einloggen",
+    "sign-in-description": "Willkommen zurück zu Semanux.",
+    "sign-up-title": "Registrieren",
+    "sign-up-description": "Registriere dich jetzt um Semanux herunterzuladen, Funktionen zu buchen und Einstellungen zu ändern. Der Semanux Account ist kostenlos.",
+    "sign-in": "Einloggen",
+    "sign-up": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirm-password": "Passwort bestätigen",
+    "firstname": "Vorname",
+    "lastname": "Nachname",
+    "newsletter": "Ich möchte mich zum Newsletter anmelden."
+  },
+  "reset-password-request": {
+    "message": "Wir haben eine Anleitung zum Zurücksetzen deines Passwortes an {email} gesendet. Du kannst diese Seite jetzt verlassen.",
+    "fail": "Etwas ist schief gelaufen."
+  },
+  "reset-password-requested": {
+    "message": "Die Aufforderung zum Zurücksetzen deines Passworts wurde an deine E-Mail-Adresse gesendet. Bitte prüfe deinen Posteingang und folgen den Anweisungen. Du kannst diese Seite jetzt verlassen."
+  },
+  "reset-password": {
+    "title": "Passwort zurücksetzen",
+    "description": "Ersetze dein aktuelles Passswort.",
+    "password": "Neues Passwort",
+    "confirm-password": "Passwort bestätigen",
+    "submit": "Absenden",
+    "success": "Passwort erfolgreich zurückgesetzt, dankeschön! Du kannst diese Seite jetzt verlassen.",
+    "check-token": "Überprüfe deine Anfrage...",
+    "request-token": "Deine Anfrage scheint nicht mehr gültig. Klicke hier um sie zu erneuern."
+  },
+  "account": {
+    "download": "Downloade Semanux {0}"
+  },
+  "download": {
+    "message": "Der Download von Semanux sollte automatisch innerhalb einer Sekunde starten. Falls nicht, {link}. Danach kannst du diese Seite verlassen.",
+    "link-text": "klicke hier"
+  },
+  "not-found": {
+    "title": "Seite nicht gefunden",
+    "message": "Wir konnten die angeforderte Seite leider nicht finden."
+  }
+}

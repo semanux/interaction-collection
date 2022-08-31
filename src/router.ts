@@ -1,10 +1,10 @@
 import { createWebHistory, createRouter, useRoute } from "vue-router"
-import Home from "../pages/Home.vue"
-import FirstPage from "../pages/FirstPage.vue"
-import SecondPage from "../pages/SecondPage.vue"
-import ThirdPage from "../pages/ThirdPage.vue"
-import NotFound from "../components/NotFound.vue"
-import FormWrapper from "../pages/FormWrapper.vue"
+import Home from "@/components/pages/Home.vue"
+import FirstPage from "@/components/pages/FirstPage.vue"
+import SecondPage from "@/components/pages/SecondPage.vue"
+import ThirdPage from "@/components/pages/ThirdPage.vue"
+import NotFound from "@/components/NotFound.vue"
+import FormWrapper from "@/components/pages/FormWrapper.vue"
 const routes = [
   {
     path: "/",

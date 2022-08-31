@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { useFormStore } from "../stores/formStore"
+import { useFormStore } from "@/store"
 
 
 //newAudio and Recorder  ref (with mediaSource + null + blob)

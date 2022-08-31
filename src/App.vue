@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import header from "@/components/Header.vue";
-import footer from "@/components/Footer.vue";
+import headerComponent from "@/components/Header.vue";
+import footerComponent from "@/components/Footer.vue";
 
 </script>
 
 <template>
-  <header/>
+  <headerComponent/>
   <div class="middle">
     <router-view/>
   </div>
-  <footer/>
+  <footerComponent/>
 </template>
 
 <style>
-@import "assets/styles/corporate/style.css";
+@import "@/assets/styles/corporate/style.css";
 
 /* TODO: Put background color to corporate colors. */
 :root {

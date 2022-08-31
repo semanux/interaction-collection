@@ -1,0 +1,67 @@
+{
+  "bottom": {
+    "legal": {
+      "text": "{imprint} and {dataPrivacy}",
+      "imprint": "Imprint",
+      "data-privacy": "Data Privacy",
+      "imprint-link": "https://semanux.com/imprint",
+      "data-privacy-link": "https://semanux.com/data-privacy"
+    },
+    "locale": {
+      "en": "English",
+      "de": "German"
+    }
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email-required": "E-mail is required.",
+    "email-invalid": "E-mail is not valid.",
+    "password-required": "Password is required.",
+    "password-length": "Password must have at least 8 characters.",
+    "password-unmatch": "Both entered passwords must match.",
+    "firstname-required": "First name is required.",
+    "lastname-required": "Last name is required."
+  },
+  "sign-in-up": {
+    "sign-in-title": "Sign In",
+    "sign-in-description": "Welcome back to Semanux.",
+    "sign-up-title": "Sign Up",
+    "sign-up-description": "Sign up now to download Semanux, change your plan, and edit settings. The Semanux account is free.",
+    "sign-in": "Sign in",
+    "sign-up": "Sign up",
+    "email": "E-mail",
+    "password": "Password",
+    "confirm-password": "Confirm Password",
+    "firstname": "First Name",
+    "lastname": "Last Name",
+    "newsletter": "I want to subscribe to the newsletter"
+  },
+  "reset-password-request": {
+    "message": "We have sent a mail to {email} with instructions how to reset your password. You can leave this page now.",
+    "fail": "Something went wrong."
+  },
+  "reset-password-requested": {
+    "message": "Request reset of password has been sent to your e-mail address. Please check your inbox and follow the instructions. You can leave this page now."
+  },
+  "reset-password": {
+    "title": "Reset password",
+    "description": "Replace your current password.",
+    "password": "New Password",
+    "confirm-password": "Confirm Password",
+    "submit": "Submit",
+    "success": "Password successfully set, thank you! You can leave this page now.",
+    "check-token": "Checking your request...",
+    "request-token": "Your request seems to be outdated. Click here to renew it."
+  },
+  "account": {
+    "download": "Download Semanux {0}"
+  },
+  "download": {
+    "message": "The download of Semanux should start automatically within a second. If the download does not start, {link}. After the download you can leave this page.",
+    "link-text": "just click here"
+  },
+  "not-found": {
+    "title": "Page not found",
+    "message": "We could not find the requested page."
+  }
+}
