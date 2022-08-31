@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter, useRoute } from "vue-router"
+import Home from "../pages/Home.vue"
 import FirstPage from "../pages/FirstPage.vue"
 import SecondPage from "../pages/SecondPage.vue"
 import ThirdPage from "../pages/ThirdPage.vue"
@@ -7,6 +8,11 @@ import FormWrapper from "../pages/FormWrapper.vue"
 const routes = [
   {
     path: "/",
+    name: "home",
+    component: Home
+  },
+  {
+    path: "/1",
     name: "first",
     component: FirstPage
   },
@@ -21,7 +27,7 @@ const routes = [
     component: ThirdPage
   },
   {
-    path: "/semanux/form/:id",
+    path: "/form/:id",
     component: FormWrapper
   },
   {

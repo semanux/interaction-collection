@@ -1,0 +1,3 @@
+[submodule "src/assets/styles/corporate"]
+	path = src/assets/styles/corporate
+	url = https://github.com/semanux/style.git
