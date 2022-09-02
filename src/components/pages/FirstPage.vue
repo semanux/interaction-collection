@@ -34,7 +34,7 @@ const onSubmit = (e) => {
 </script>
 
 <template>
-  <div>
+  <div class="middle-container">
     <recorder />
     <form @submit="onSubmit">
       <input v-model="email" />
@@ -52,9 +52,9 @@ const onSubmit = (e) => {
   </div>
 </template>
 
-<style lang="css">
+<style scoped>
 
-div {
+.middle-container {
   display: flex;
   width: 50vw;
   flex-direction: column;

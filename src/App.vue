@@ -39,7 +39,7 @@ h2 {
 
 #app {
   color: var(--color-font-primary);
-  max-width: 600px;
+  max-width: 1600px;
   margin: auto;
 }
 

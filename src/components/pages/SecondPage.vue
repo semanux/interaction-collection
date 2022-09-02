@@ -52,5 +52,5 @@ const onSubmit = (e) => {
   </div>
 </template>
 
-<style lang="css">
+<style scoped>
 </style>
