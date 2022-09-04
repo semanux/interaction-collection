@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
 import { useFormStore } from "@/store"
+import { PhMicrophone } from "@dnlsndr/vue-phosphor-icons";
 
 
 //newAudio and Recorder  ref (with mediaSource + null + blob)
-const newAudio = ref(null as null | MediaSource | Blob)
-const recorder = ref(null as null | MediaRecorder)
-
+const newAudio = ref(null as null | MediaSource | Blob);
+const recorder = ref(null as null | MediaRecorder);
+const recordedChunks = [] as Array<any>;
 
 //useForm --> piniaStore to save the content to from recordedChunks ref
-const store = useFormStore()
+const store = useFormStore();
 const newAudioURL = computed(() => {
   if (newAudio.value !== null) {
     return URL.createObjectURL(newAudio.value)
   }
   return undefined
-})
+});
+
+const recordbtn = ref(null as HTMLElement | null);
 
 // Reference to the canvas showing the wav
 const canvas = ref(null as HTMLElement | null);
@@ -129,37 +132,43 @@ const draw = () => {
 
 //record function to sync the function value
 const record = async () => {
-  newAudio.value = null
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: true,
-    video: false
-  })
 
-  const options = { mimeType: "audio/webm" }
-  const recordedChunks = [] as Array<any>
-  recorder.value = new MediaRecorder(stream, options)
-  recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
-    if (e.data.size > 0) {
-      recordedChunks.push(e.data)
-      //ISSUE
-      console.log("value of the recorder.value", recorder.value)
-      // store.setRecorder(recorder.value)
-      // store.setRecorder(e.data)
-      console.log("recorded chunks length", recordedChunks.length)
-      store.setRecorder(recordedChunks)
-    }
-  })
+  if (recordbtn.value.classList.contains('recording'))
+  {
+    recordbtn.value.classList.remove('recording');
+    stop();
+  } else {
+    recordbtn.value.classList.add('recording');
 
-  console.log("recorded chunks length", recordedChunks.length)
+    newAudio.value = null
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: false
+    })
 
-  recorder.value.addEventListener("stop", () => {
-    newAudio.value = new Blob(recordedChunks)
-    console.log("value of the newaudio", newAudio.value)
-  })
+    const options = { mimeType: "audio/webm" }
+    recorder.value = new MediaRecorder(stream, options)
+    recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
+      if (e.data.size > 0) {
+        recordedChunks.push(e.data)
+        //ISSUE
+        console.log("value of the recorder.value", recorder.value)
+        // store.setRecorder(recorder.value)
+        // store.setRecorder(e.data)
+        console.log("recorded chunks length", recordedChunks.length)
+        store.setRecorder(recordedChunks)
+      }
+    })
 
-  recorder.value.start()
+    console.log("recorded chunks length", recordedChunks.length);
+    recorder.value.start();
+  }
+
+
 }
-const stop = async () => {
+const stop = () => {
+  newAudio.value = new Blob(recordedChunks)
+  console.log("value of the newaudio", newAudio.value)
   store.setRecorder(recorder.value)
   recorder.value?.stop()
   recorder.value = null
@@ -175,10 +184,11 @@ const deleteEvents = async (index) => {
 
 
 <template>
-  <div>
 
-    <button v-if="!recorder" @click="record()">Record Voice</button>
-    <button v-else @click="stop()">Stop</button>
+    <button ref="recordbtn" id="record-btn" @click="record()">
+      <PhMicrophone :size="64" color="white" weight="fill" />
+    </button>
+
     <br />
 
     <div id="wav-container">
@@ -200,7 +210,7 @@ const deleteEvents = async (index) => {
       <button @click="deleteEvents(0)">Delete</button>
     </div>
     <hr />
-  </div>
+
 </template>
 
 
@@ -221,6 +231,10 @@ body {
 #wav-container{
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 
@@ -228,12 +242,30 @@ body {
   width: 100%;
   height: 100%;
   margin: auto;
-  /* position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: 0; */
-  /*order: 1px solid red;*/
+
 }
 
+#record-btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  outline: none;
+  border: none;
+  background-color: #05A6B5;
+  background-image: linear-gradient(to bottom, #e430bd, #b461df, #7b7dee, #3d8eeb, #0099da, #00a6d3, #00afc2, #00b7ad, #3bc696, #78d173, #b6d74e, #fad532);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0px 5px 5px 2px rgb(0 0 0 / 30%) inset, 0px 0px 0px 0px #fff, 0px 0px 0px 5px #333;
+}
+#record-btn:hover {
+    background-color:  #e430bd;
+    background-image: linear-gradient(to top, #e430bd, #b461df, #7b7dee, #3d8eeb, #0099da, #00a6d3, #00afc2, #00b7ad, #3bc696, #78d173, #b6d74e, #fad532);
+}
+#record-btn.recording {
+    background-color: #ff2038;
+    background-image: linear-gradient(0deg, #ff2038 0%, #b30003 100%);
+}
 </style>
