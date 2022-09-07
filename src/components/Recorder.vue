@@ -1,27 +1,29 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue"
+import { computed, onMounted, onUnmounted, ref } from "vue"
 import { useFormStore } from "@/store"
 import { PhMicrophone } from "@dnlsndr/vue-phosphor-icons";
 
+const stream = ref<any>();
 
 //newAudio and Recorder  ref (with mediaSource + null + blob)
 const newAudio = ref(null as null | MediaSource | Blob);
 const recorder = ref(null as null | MediaRecorder);
-const recordedChunks = [] as Array<any>;
+const recordedChunks = ref<Array<any>>();
 
 //useForm --> piniaStore to save the content to from recordedChunks ref
 const store = useFormStore();
 const newAudioURL = computed(() => {
   if (newAudio.value !== null) {
-    return URL.createObjectURL(newAudio.value)
+    return URL.createObjectURL(newAudio.value);
   }
-  return undefined
+  return undefined;
 });
 
 const recordbtn = ref(null as HTMLElement | null);
 
 // Reference to the canvas showing the wav
-const canvas = ref(null as HTMLElement | null);
+// const canvas = ref(null as HTMLElement | null);
+const canvas = ref<HTMLElement>();
 let width = ref(0);
 let height = ref(0);
 let analyser = ref(null as AnalyserNode | null);
@@ -30,59 +32,78 @@ let frequencyArray = ref(null as Float32Array | null);
 
 let now = ref(0);
 
+const interval = ref(0); 
+
 // On mounted
 onMounted(() => {
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(soundAllowed).catch(soundNotAllowed)
+  recordedChunks.value = [];
+  navigator.mediaDevices.getUserMedia({
+     audio: true,
+     video: false
+  })
+  .then(
+    soundAllowed
+  )
+  .catch(
+    soundNotAllowed
+  );
+});
+
+onUnmounted(() => {
+  visualizeWaveStop();
 });
 
 
 
-const soundAllowed = (stream: MediaStream) => {
+const soundAllowed = (mediaStream: MediaStream) => {
 
-  visualizeWaveInit(stream);
-  visualizeWaveLoop();
-  //window.requestAnimationFrame(visualizeWaveLoop());
-
-  setInterval(
-    () => {
-      visualizeWaveLoop(); 
-    }
-    , 10
-    );
-  }
+  stream.value = mediaStream;
+  visualizeWaveInit();
+  
+}
 
 const soundNotAllowed = () => {
   // @Todo
 }
 
 
-const visualizeWaveInit = (stream: MediaStream) => {
+const visualizeWaveInit = () => {
 
   const audioContext = window.AudioContext;
   const audioContent = new audioContext();
-  const streamSource = audioContent.createMediaStreamSource(stream);
+  const streamSource = audioContent.createMediaStreamSource(stream.value );
 
-  console.log('canvas is,', canvas);
-  //obj.canvas = document.getElementById( 'canvas' );
-  // obj.ctx = canvas.value.getContext( '2d' );
-  width.value = window.innerWidth * 0.4;
-  height.value = window.innerHeight * 0.4;
-  canvas.value.width = width.value * window.devicePixelRatio;
-  canvas.value.height = height.value * window.devicePixelRatio;
-  canvas.value.style.width = width.value  + 'px';
-  canvas.value.style.height = height.value  + 'px';
+  if (canvas.value != null) {
+    width.value = window.innerWidth * 0.4;
+    height.value = window.innerHeight * 0.4;
+    canvas.value.width = width.value * window.devicePixelRatio;
+    canvas.value.height = height.value * window.devicePixelRatio;
+    canvas.value.style.width = width.value  + 'px';
+    canvas.value.style.height = height.value  + 'px';
 
-  canvas.value.getContext( '2d' ).scale(window.devicePixelRatio, window.devicePixelRatio);
-  canvas.value.bars = [];
+    canvas.value.getContext( '2d' ).scale(window.devicePixelRatio, window.devicePixelRatio);
+    canvas.value.bars = [];
 
-  canvas.value.analyser = audioContent.createAnalyser();
-  streamSource.connect(canvas.value.analyser);
-  canvas.value.analyser.fftSize = 512;
-  canvas.value.frequencyArray = new Float32Array(canvas.value.analyser.fftSize);
+    canvas.value.analyser = audioContent.createAnalyser();
+    streamSource.connect(canvas.value.analyser);
+    canvas.value.analyser.fftSize = 512;
+    canvas.value.frequencyArray = new Float32Array(canvas.value.analyser.fftSize);
 
-  now.value = parseInt(performance.now() / 50);
+    now.value = parseInt(performance.now() / 50);
+    }
+  }
+
+const visualizeWaveStart = () =>{
+
+  //window.requestAnimationFrame(visualizeWaveLoop());
+
+  interval.value = setInterval(
+    () => {
+      visualizeWaveLoop(); 
+    }
+    , 10
+  );
 }
-
 
 const visualizeWaveLoop = (): FrameRequestCallback | any  => {
 //console.log("arr", obj.frequencyArray)
@@ -101,7 +122,7 @@ if ( parseInt(performance.now() / 50)  > now.value) {
       } 
     }    
 
-    var freq = Math.floor(max * 650);
+    var freq = Math.floor(max * 1000);
 
     canvas.value.bars.push({
       x: width.value,
@@ -110,12 +131,12 @@ if ( parseInt(performance.now() / 50)  > now.value) {
       width: 5
     });
   }
-  draw();
+  visualizeWaveDraw();
 
 }
 
 
-const draw = () => {
+const visualizeWaveDraw = () => {
 
   for (let i=0; i< canvas.value.bars.length ; i++) {
     const bar = canvas.value.bars[i];
@@ -130,6 +151,12 @@ const draw = () => {
   }
 }
 
+const visualizeWaveStop = () => {
+  clearInterval(interval.value);
+}
+
+
+
 //record function to sync the function value
 const record = async () => {
 
@@ -140,38 +167,39 @@ const record = async () => {
   } else {
     recordbtn.value.classList.add('recording');
 
-    newAudio.value = null
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: false
-    })
+    newAudio.value = null;
 
-    const options = { mimeType: "audio/webm" }
-    recorder.value = new MediaRecorder(stream, options)
+    const options = { mimeType: "audio/webm" };
+    recorder.value = new MediaRecorder(stream.value, options);
     recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
       if (e.data.size > 0) {
-        recordedChunks.push(e.data)
+        recordedChunks.value.push(e.data)
         //ISSUE
         console.log("value of the recorder.value", recorder.value)
         // store.setRecorder(recorder.value)
         // store.setRecorder(e.data)
-        console.log("recorded chunks length", recordedChunks.length)
-        store.setRecorder(recordedChunks)
+        console.log("recorded chunks length", recordedChunks.value.length)
+        store.setRecorder(recordedChunks.value)
       }
     })
 
-    console.log("recorded chunks length", recordedChunks.length);
+    console.log("recorded chunks length", recordedChunks.value.length);
     recorder.value.start();
+    visualizeWaveStart();
   }
 
 
 }
 const stop = () => {
-  newAudio.value = new Blob(recordedChunks)
-  console.log("value of the newaudio", newAudio.value)
-  store.setRecorder(recorder.value)
-  recorder.value?.stop()
-  recorder.value = null
+  if (recordedChunks.value != null){
+    newAudio.value = new Blob(recordedChunks.value);
+    console.log("value of the newaudio", newAudio.value);
+    store.setRecorder(recorder.value);
+    recorder.value?.stop();
+    recorder.value = null;
+
+  visualizeWaveStop();
+  }
 }
 
 const deleteEvents = async (index) => {
@@ -199,7 +227,7 @@ const deleteEvents = async (index) => {
     </div>
 
 
-    <div className="box" style="box" v-for="(recordedChunk, index) in 1">
+    <div className="box" style="box" v-for="(recordedChunk, index) in recordedChunks">
       <audio
         v-if="newAudio"
         :src="newAudioURL"
