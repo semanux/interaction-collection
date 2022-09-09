@@ -1,34 +1,40 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue"
 import { useFormStore } from "@/store"
-import { PhMicrophone } from "@dnlsndr/vue-phosphor-icons";
+import { PhMicrophone, PhTrashSimple } from "@dnlsndr/vue-phosphor-icons";
 
 const stream = ref<any>();
 
 //newAudio and Recorder  ref (with mediaSource + null + blob)
-const newAudio = ref(null as null | MediaSource | Blob);
-const recorder = ref(null as null | MediaRecorder);
-const recordedChunks = ref<Array<any>>();
+const newAudio = ref<Blob | MediaSource>();
+const recorder = ref<MediaRecorder>();
+
+const audioFile = ref<Blob | MediaSource>();
+const audioFileURL = ref<string>();
 
 //useForm --> piniaStore to save the content to from recordedChunks ref
 const store = useFormStore();
-const newAudioURL = computed(() => {
-  if (newAudio.value !== null) {
-    return URL.createObjectURL(newAudio.value);
+
+const recordbtn = ref<HTMLElement>();
+
+let recordingState = ref(null);
+
+const showRecorder = computed(() => {
+  if (recordingState.value !== null) {
+    if (recordingState.value != 'stopped'){
+      return true;
+    } else {
+      return false;
+    }
   }
-  return undefined;
+  return true;
 });
 
-const recordbtn = ref(null as HTMLElement | null);
-
 // Reference to the canvas showing the wav
-// const canvas = ref(null as HTMLElement | null);
 const canvas = ref<HTMLElement>();
 let width = ref(0);
 let height = ref(0);
-let analyser = ref(null as AnalyserNode | null);
-let frequencyArray = ref(null as Float32Array | null);
-//let bars = ref(null as Array<any> | null);
+
 
 let now = ref(0);
 
@@ -36,7 +42,7 @@ const interval = ref(0);
 
 // On mounted
 onMounted(() => {
-  recordedChunks.value = [];
+
   navigator.mediaDevices.getUserMedia({
      audio: true,
      video: false
@@ -58,8 +64,7 @@ onUnmounted(() => {
 const soundAllowed = (mediaStream: MediaStream) => {
 
   stream.value = mediaStream;
-  visualizeWaveInit();
-  
+  visualizeWaveInit();  
 }
 
 const soundNotAllowed = () => {
@@ -74,8 +79,8 @@ const visualizeWaveInit = () => {
   const streamSource = audioContent.createMediaStreamSource(stream.value );
 
   if (canvas.value != null) {
-    width.value = window.innerWidth * 0.4;
-    height.value = window.innerHeight * 0.4;
+    width.value = 400; //@TODO: to be calculted dynamicly based on the viewport
+    height.value = 100; 
     canvas.value.width = width.value * window.devicePixelRatio;
     canvas.value.height = height.value * window.devicePixelRatio;
     canvas.value.style.width = width.value  + 'px';
@@ -156,55 +161,68 @@ const visualizeWaveStop = () => {
 }
 
 
-
 //record function to sync the function value
 const record = async () => {
-
-  if (recordbtn.value.classList.contains('recording'))
+  // Toggle start/stop recording
+  if (recordingState.value === 'recording')
   {
+    recordingState.value = 'stopped';
     recordbtn.value.classList.remove('recording');
     stop();
   } else {
+    recordingState.value = 'recording';
     recordbtn.value.classList.add('recording');
 
-    newAudio.value = null;
+    let recordedChunks: Array<any> = [];
 
-    const options = { mimeType: "audio/webm" };
-    recorder.value = new MediaRecorder(stream.value, options);
-    recorder.value.addEventListener("dataavailable", (e: BlobEvent) => {
-      if (e.data.size > 0) {
-        recordedChunks.value.push(e.data)
-        //ISSUE
-        console.log("value of the recorder.value", recorder.value)
-        // store.setRecorder(recorder.value)
-        // store.setRecorder(e.data)
-        console.log("recorded chunks length", recordedChunks.value.length)
-        store.setRecorder(recordedChunks.value)
+
+    try {
+      newAudio.value = new Blob(recordedChunks);;
+
+      const options = { mimeType: "audio/webm" };
+      recorder.value = new MediaRecorder(stream.value, options);
+      recorder.value.ondataavailable = (e: BlobEvent) => {
+
+        recordedChunks.push(e.data);
+        console.log("value of the recorder.value", recorder.value);
+        store.setRecorder(recordedChunks);
+
+        if (recorder.value.state === 'inactive') {
+              audioFile.value = new Blob(recordedChunks);
+              console.log("value of the newaudio", audioFile.value);
+              audioFileURL.value = URL.createObjectURL(audioFile.value);
+        }
+
       }
-    })
 
-    console.log("recorded chunks length", recordedChunks.value.length);
+
+    } catch (err) {
+        // eslint-disable-next-line no-alert
+        alert(`Audio error:  ${err}`);
+        // eslint-disable-next-line no-console
+        console.error('Audio error: ', err);
+    }
+
     recorder.value.start();
     visualizeWaveStart();
+
   }
-
-
 }
+
 const stop = () => {
-  if (recordedChunks.value != null){
-    newAudio.value = new Blob(recordedChunks.value);
-    console.log("value of the newaudio", newAudio.value);
-    store.setRecorder(recorder.value);
-    recorder.value?.stop();
-    recorder.value = null;
+  store.setRecorder(recorder.value);
+  recorder.value?.stop();
 
   visualizeWaveStop();
-  }
+
 }
 
-const deleteEvents = async (index) => {
-  console.log("deletingEventTriggered")
-  await store.filterRecorder(index)
+const deleteAudio = () => {
+  recordingState.value = 'idle';
+  console.log(showRecorder.value) ;
+  audioFile.value = null;
+  audioFileURL.value = null;
+
 }
 
 
@@ -213,31 +231,41 @@ const deleteEvents = async (index) => {
 
 <template>
 
-    <button ref="recordbtn" id="record-btn" @click="record()">
-      <PhMicrophone :size="64" color="white" weight="fill" />
-    </button>
-
-    <br />
-
-    <div id="wav-container">
+  <div id="wav-container" >
+    <transition-group name="widgets" appear>
       <canvas
-       ref="canvas"
-       id="canvas"
-      />
-    </div>
-
-
-    <div className="box" style="box" v-for="(recordedChunk, index) in recordedChunks">
-      <audio
-        v-if="newAudio"
-        :src="newAudioURL"
-        controls
-        controlsList="nodownload"
+      key="canvas"
+      v-show="recordingState == 'recording'"
+      ref="canvas"
+      id="canvas"
       />
 
-      <button @click="deleteEvents(0)">Delete</button>
-    </div>
-    <hr />
+      <button
+        ref="recordbtn"
+        v-if="showRecorder"
+        key="recordbtn"
+        id="record-btn"
+        class="btn"
+        @click="record()"
+      >
+        <PhMicrophone :size="64" color="white" weight="fill" />
+      </button>
+    </transition-group>
+  </div>
+
+
+  <div className="box" style="box"  v-if="audioFileURL">
+    <audio
+
+      :src="audioFileURL"
+      controls
+      controlsList="nodownload"
+    />
+
+    <button id="delete-btn" class="btn" @click="deleteAudio()">
+      <PhTrashSimple :size="32" color="#ff2038" weight="fill" />
+    </button>
+  </div>
 
 </template>
 
@@ -260,26 +288,52 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
 }
-
 
 #canvas {
   width: 100%;
   height: 100%;
-  margin: auto;
+}
 
+.widgets-enter-from{
+  opacity: 0;
+  transform: scale(0.6);
+}
+.widgets-enter-to{
+  opacity: 1;
+  transform: scale(1);
+}
+.widgets-enter-active{
+  transition: all 0.3s ease;
+}
+.widgets-leave-from{
+  opacity: 1;
+  transform: scale(1);
+}
+.widgets-leave-to{
+  opacity: 0;
+  transform: scale(0.6);
+}
+.widgets-leave-active{
+  transition: all 0.3s ease;
+}
+.widgets-move{
+  transition: all 0.3s ease;
+}
+
+.btn{
+  justify-content: center;
+  align-items: center;
+  outline: none;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
 #record-btn{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  outline: none;
-  border: none;
   background-color: #05A6B5;
   background-image: linear-gradient(to bottom, #e430bd, #b461df, #7b7dee, #3d8eeb, #0099da, #00a6d3, #00afc2, #00b7ad, #3bc696, #78d173, #b6d74e, #fad532);
   width: 100px;
@@ -295,5 +349,15 @@ body {
 #record-btn.recording {
     background-color: #ff2038;
     background-image: linear-gradient(0deg, #ff2038 0%, #b30003 100%);
+}
+
+#delete-btn{
+  background-color: #333;
+  width: 60px;
+  height: 60px;
+  box-shadow: 0px 5px 5px 1px rgb(0 0 0 / 30%) inset, 0px 0px 0px 0px #fff, 0px 0px 0px 2px #333;
+}
+#delete-btn:hover{
+  background-color:  #777;
 }
 </style>
