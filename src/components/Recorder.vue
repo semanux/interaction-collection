@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue"
 import { useFormStore } from "@/store"
-import { PhMicrophone, PhTrashSimple } from "@dnlsndr/vue-phosphor-icons";
+import { PhMicrophone, PhTrashSimple, PhPlay } from "@dnlsndr/vue-phosphor-icons";
 
 const stream = ref<any>();
 
@@ -11,27 +11,36 @@ const recorder = ref<MediaRecorder>();
 
 const audioFile = ref<Blob | MediaSource>();
 const audioFileURL = ref<string>();
+const player = ref<HTMLAudioElement>();
 
 //useForm --> piniaStore to save the content to from recordedChunks ref
 const store = useFormStore();
 
 const recordbtn = ref<HTMLElement>();
 
-let recordingState = ref(null);
+let recordingState = ref<String>();
 
-const showRecorder = computed(() => {
-  if (recordingState.value !== null) {
-    if (recordingState.value != 'stopped'){
-      return true;
-    } else {
-      return false;
-    }
-  }
-  return true;
-});
+// const showRecorder = computed(() => {
+//   if (recordingState.value !== undefined) {
+//     if (recordingState.value != 'stopped'){
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   }
+//   return true;
+// });
+
+interface WaveCanvas extends HTMLCanvasElement{
+  width: number;
+  hight: number;
+  bars: Array<any>;
+  analyser: AnalyserNode;
+  frequencyArray: Float32Array;
+}
 
 // Reference to the canvas showing the wav
-const canvas = ref<HTMLElement>();
+const canvas = ref<WaveCanvas>();
 let width = ref(0);
 let height = ref(0);
 
@@ -39,6 +48,8 @@ let height = ref(0);
 let now = ref(0);
 
 const interval = ref(0); 
+
+const micIcon = ref<typeof PhMicrophone>();
 
 // On mounted
 onMounted(() => {
@@ -83,8 +94,8 @@ const visualizeWaveInit = () => {
     height.value = 100; 
     canvas.value.width = width.value * window.devicePixelRatio;
     canvas.value.height = height.value * window.devicePixelRatio;
-    canvas.value.style.width = width.value  + 'px';
-    canvas.value.style.height = height.value  + 'px';
+    canvas.value.style.width = `${width.value}px`;
+    canvas.value.style.height = `${height.value}px`;
 
     canvas.value.getContext( '2d' ).scale(window.devicePixelRatio, window.devicePixelRatio);
     canvas.value.bars = [];
@@ -167,14 +178,15 @@ const record = async () => {
   if (recordingState.value === 'recording')
   {
     recordingState.value = 'stopped';
-    recordbtn.value.classList.remove('recording');
+    recordbtn.value?.classList.remove('recording');
+    canvas.value?.classList.add('player-mode');
     stop();
   } else {
     recordingState.value = 'recording';
-    recordbtn.value.classList.add('recording');
+    recordbtn.value?.classList.add('recording');
+    canvas.value?.classList.remove('player-mode');
 
     let recordedChunks: Array<any> = [];
-
 
     try {
       newAudio.value = new Blob(recordedChunks);;
@@ -217,12 +229,21 @@ const stop = () => {
 
 }
 
+const playAudio = () => {
+  player.value.play();
+
+}
+
 const deleteAudio = () => {
   recordingState.value = 'idle';
-  console.log(showRecorder.value) ;
   audioFile.value = null;
   audioFileURL.value = null;
 
+}
+
+
+const upload = () => {
+  return true;
 }
 
 
@@ -231,24 +252,40 @@ const deleteAudio = () => {
 
 <template>
 
-  <div id="wav-container" >
-    <transition-group name="widgets" appear>
+  <div class="wav-container" >
+    <transition-group  name="widgets" appear>
+
+      <button
+        v-if="audioFileURL"
+        class="btn play-btn"
+        @click="playAudio()"
+      >
+        <PhPlay size="69%" color="white" weight="fill" />
+      </button>
+
       <canvas
       key="canvas"
-      v-show="recordingState == 'recording'"
+      v-show="recordingState != 'idle' && recordingState != null"
       ref="canvas"
-      id="canvas"
+      class="wave-canvas"
       />
 
       <button
+        v-if="audioFileURL"
+        class="btn delete-btn"
+        @click="deleteAudio()"
+      >
+        <PhTrashSimple size="69%" color="#ff2038" weight="fill" />
+      </button>
+
+      <button
+        v-if="recordingState != 'stopped'"
         ref="recordbtn"
-        v-if="showRecorder"
         key="recordbtn"
-        id="record-btn"
-        class="btn"
+        class="btn record-btn"
         @click="record()"
       >
-        <PhMicrophone :size="64" color="white" weight="fill" />
+        <PhMicrophone ref="micIcon" size="69%" color="white" weight="fill" />
       </button>
     </transition-group>
   </div>
@@ -256,15 +293,15 @@ const deleteAudio = () => {
 
   <div className="box" style="box"  v-if="audioFileURL">
     <audio
-
+      ref="player"
       :src="audioFileURL"
       controls
       controlsList="nodownload"
+      v-show = "false"
     />
 
-    <button id="delete-btn" class="btn" @click="deleteAudio()">
-      <PhTrashSimple :size="32" color="#ff2038" weight="fill" />
-    </button>
+
+
   </div>
 
 </template>
@@ -284,7 +321,7 @@ body {
   overflow: hidden;
 }
 
-#wav-container{
+.wav-container{
   width: 100%;
   height: 100%;
   display: flex;
@@ -293,9 +330,18 @@ body {
   align-items: center;
 }
 
-#canvas {
+.wave-canvas {
   width: 100%;
   height: 100%;
+}
+
+.wave-canvas.player-mode{
+  margin: 10px;
+  border-top-right-radius: 100px;
+  border-bottom-left-radius: 100px;
+  border-bottom-right-radius: 100px;
+  border-top-left-radius: 100px;
+  box-shadow: rgb(0 0 0 / 30%) 0px 5px 5px 1px inset, rgb(255 255 255) 0px 0px 0px 0px, rgb(51 51 51) 0px 0px 0px 2px;
 }
 
 .widgets-enter-from{
@@ -333,7 +379,7 @@ body {
   cursor: pointer;
 }
 
-#record-btn{
+.record-btn{
   background-color: #05A6B5;
   background-image: linear-gradient(to bottom, #e430bd, #b461df, #7b7dee, #3d8eeb, #0099da, #00a6d3, #00afc2, #00b7ad, #3bc696, #78d173, #b6d74e, #fad532);
   width: 100px;
@@ -342,22 +388,32 @@ body {
   cursor: pointer;
   box-shadow: 0px 5px 5px 2px rgb(0 0 0 / 30%) inset, 0px 0px 0px 0px #fff, 0px 0px 0px 5px #333;
 }
-#record-btn:hover {
-    background-color:  #e430bd;
-    background-image: linear-gradient(to top, #e430bd, #b461df, #7b7dee, #3d8eeb, #0099da, #00a6d3, #00afc2, #00b7ad, #3bc696, #78d173, #b6d74e, #fad532);
+.record-btn:hover {
+  background-color:  #e430bd;
+  background-image: linear-gradient(to top, #e430bd, #b461df, #7b7dee, #3d8eeb, #0099da, #00a6d3, #00afc2, #00b7ad, #3bc696, #78d173, #b6d74e, #fad532);
 }
-#record-btn.recording {
-    background-color: #ff2038;
-    background-image: linear-gradient(0deg, #ff2038 0%, #b30003 100%);
+.record-btn.recording {
+  background-color: #ff2038;
+  background-image: linear-gradient(0deg, #ff2038 0%, #b30003 100%);
 }
 
-#delete-btn{
+.delete-btn{
   background-color: #333;
-  width: 60px;
-  height: 60px;
+  width: 69px;
+  height: 69px;
   box-shadow: 0px 5px 5px 1px rgb(0 0 0 / 30%) inset, 0px 0px 0px 0px #fff, 0px 0px 0px 2px #333;
 }
-#delete-btn:hover{
+.delete-btn:hover{
   background-color:  #777;
+}
+
+.play-btn{
+  background-color: #00b7ad;
+  width: 69px;
+  height: 69px;
+  box-shadow: 0px 5px 5px 1px rgb(0 0 0 / 30%) inset, 0px 0px 0px 0px #fff, 0px 0px 0px 2px #333;
+}
+.play-btn:hover{
+  background-color:  #0c5550;
 }
 </style>
