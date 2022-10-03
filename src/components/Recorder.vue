@@ -20,17 +20,6 @@ const recordbtn = ref<HTMLElement>();
 
 let recordingState = ref<String>();
 
-// const showRecorder = computed(() => {
-//   if (recordingState.value !== undefined) {
-//     if (recordingState.value != 'stopped'){
-//       return true;
-//     } else {
-//       return false;
-//     }
-//   }
-//   return true;
-// });
-
 interface WaveCanvas extends HTMLCanvasElement{
   width: number;
   hight: number;
@@ -41,15 +30,13 @@ interface WaveCanvas extends HTMLCanvasElement{
 
 // Reference to the canvas showing the wav
 const canvas = ref<WaveCanvas>();
-let width = ref(0);
-let height = ref(0);
+let width = ref<Number>();
+let height =ref<Number>();
 
 
-let now = ref(0);
+let now = ref<Number>();
 
-const interval = ref(0); 
-
-const micIcon = ref<typeof PhMicrophone>();
+const interval =ref<Number>();
 
 // On mounted
 onMounted(() => {
@@ -105,7 +92,7 @@ const visualizeWaveInit = () => {
     canvas.value.analyser.fftSize = 512;
     canvas.value.frequencyArray = new Float32Array(canvas.value.analyser.fftSize);
 
-    now.value = parseInt(performance.now() / 50);
+    now.value = parseInt(performance.now() / 32); // frequency
     }
   }
 
@@ -122,12 +109,12 @@ const visualizeWaveStart = () =>{
 }
 
 const visualizeWaveLoop = (): FrameRequestCallback | any  => {
-//console.log("arr", obj.frequencyArray)
+
 canvas.value.getContext( '2d' ).clearRect(0, 0, canvas.value.width, canvas.value.height);
 let max = 0;
 
-if ( parseInt(performance.now() / 50)  > now.value) {
-    now.value = parseInt(performance.now() / 50);
+if ( parseInt(performance.now() / 32)  > now.value) {
+    now.value = parseInt(performance.now() / 32);
 
 
     canvas.value.analyser.getFloatTimeDomainData(canvas.value.frequencyArray);
@@ -141,9 +128,9 @@ if ( parseInt(performance.now() / 50)  > now.value) {
     var freq = Math.floor(max * 1000);
 
     canvas.value.bars.push({
-      x: width.value,
+      x: 0,
       y: (height.value / 2) - (freq / 2),
-      height: freq,
+      height: 10 + freq,
       width: 5
     });
   }
@@ -156,13 +143,9 @@ const visualizeWaveDraw = () => {
 
   for (let i=0; i< canvas.value.bars.length ; i++) {
     const bar = canvas.value.bars[i];
-    canvas.value.getContext( '2d' ).fillStyle = `rgb(${bar.height * 2},0,0)`; //@TODO: perhaps we can use semanux colors to represent the wav.
+    canvas.value.getContext( '2d' ).fillStyle = `rgb(${bar.height * 2},0,0)`;
     canvas.value.getContext( '2d' ).fillRect(bar.x,bar.y,bar.width,bar.height);
-    bar.x = bar.x - 2;
-    
-    if (bar.x < 1) {
-      canvas.value.bars.splice(i,1)
-    }
+    bar.x = bar.x + 2;
     
   }
 }
@@ -185,7 +168,7 @@ const record = async () => {
     recordingState.value = 'recording';
     recordbtn.value?.classList.add('recording');
     canvas.value?.classList.remove('player-mode');
-
+    
     let recordedChunks: Array<any> = [];
 
     try {
@@ -227,24 +210,100 @@ const stop = () => {
 
   visualizeWaveStop();
 
+  // Redraw the bars.
+  redrawBars();
 }
 
-const playAudio = () => {
-  player.value.play();
+const playAudio = async () => {
+  if (player.value != null){ 
 
+    let posX = 0;
+    let duration = 0;
+    let speed = 0;
+
+    // Due to a chrome bug, https://bugs.chromium.org/p/chromium/issues/detail?id=642012
+    // it is not possible to get the WebM duration unless it is played once.
+    // Therefore the junk below:
+    let c = 0;
+    while(player.value.duration === Infinity && c < 10) {
+      await new Promise(r => setTimeout(r, 10));
+      player.value.play();
+      c++;
+    }
+    duration = player.value?.duration;
+
+    speed =  width.value / (duration * 100);
+    
+    // Audio player waveform represntaion.
+    if (canvas.value != null) {
+      let ctx = canvas.value.getContext( '2d' );
+      ctx.strokeStyle = "Red";
+      ctx.lineWidth = 5;
+
+      const playbackLoop = (): FrameRequestCallback | any => {
+
+        // Redraw the bars.
+        redrawBars(posX);
+
+        posX += speed;
+        if (posX < 0 || posX > width.value) {
+          speed = 0;
+          clearInterval(interval);
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(posX, 0);
+        ctx.lineTo(posX, 100);
+        ctx.stroke();
+      }
+
+      let interval = setInterval(
+         () =>{playbackLoop()}
+        , 10
+      );
+
+    }
+
+    player.value.play();
+  } 
+
+}
+
+const redrawBars = (posX: number | null = null) => {
+  let ctx = canvas.value.getContext( '2d' );
+  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
+    for (let i=0; i< canvas.value.bars.length ; i++) {
+      const bar = canvas.value.bars[i];
+
+      // Calculate the bar position and width based on the number of bars.        
+      let w =  width.value / canvas.value.bars.length - 2; // -2 for some space between the bars. @Todo: Should be dynamic base on the duration.
+      let x = i * (width.value / canvas.value.bars.length);
+
+      if (posX != null && x < posX) {
+        ctx.fillStyle = `rgb(${bar.height * 2},0,0)`;
+      } else {
+        ctx.fillStyle = `rgb(0,0,0)`;
+      }
+
+      ctx.fillRect(x,
+                   bar.y,
+                   w,
+                   bar.height
+      ); 
+    }
 }
 
 const deleteAudio = () => {
   recordingState.value = 'idle';
   audioFile.value = null;
   audioFileURL.value = null;
-
+  visualizeWaveInit(); // dump the previous waveform
 }
-
 
 const upload = () => {
   return true;
 }
+
 
 
 </script>
@@ -254,6 +313,16 @@ const upload = () => {
 
   <div class="wav-container" >
     <transition-group  name="widgets" appear>
+
+      <button
+        v-if="recordingState != 'stopped'"
+        ref="recordbtn"
+        key="recordbtn"
+        class="btn record-btn"
+        @click="record()"
+      >
+        <PhMicrophone size="69%" color="white" weight="fill" />
+      </button>
 
       <button
         v-if="audioFileURL"
@@ -278,15 +347,6 @@ const upload = () => {
         <PhTrashSimple size="69%" color="#ff2038" weight="fill" />
       </button>
 
-      <button
-        v-if="recordingState != 'stopped'"
-        ref="recordbtn"
-        key="recordbtn"
-        class="btn record-btn"
-        @click="record()"
-      >
-        <PhMicrophone ref="micIcon" size="69%" color="white" weight="fill" />
-      </button>
     </transition-group>
   </div>
 
