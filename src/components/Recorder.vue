@@ -3,40 +3,38 @@ import { computed, onMounted, onUnmounted, ref } from "vue"
 import { useFormStore } from "@/store"
 import { PhMicrophone, PhTrashSimple, PhPlay } from "@dnlsndr/vue-phosphor-icons";
 
-const stream = ref<any>();
+const stream = ref<any>(); //@TODO we put the stream in pinia
 
-//newAudio and Recorder  ref (with mediaSource + null + blob)
-const newAudio = ref<Blob | MediaSource>();
 const recorder = ref<MediaRecorder>();
 
-const audioFile = ref<Blob | MediaSource>();
+const audioFile = ref<Blob>();
 const audioFileURL = ref<string>();
 const player = ref<HTMLAudioElement>();
 
 //useForm --> piniaStore to save the content to from recordedChunks ref
 const store = useFormStore();
 
-const recordbtn = ref<HTMLElement>();
+const recordBtn = ref<HTMLElement>();
 
-let recordingState = ref<String>();
+let recordingState = ref<String>(); //@todo enum
 
 interface WaveCanvas extends HTMLCanvasElement{
   width: number;
   hight: number;
-  bars: Array<any>;
+  bars: Array<Object>;
   analyser: AnalyserNode;
   frequencyArray: Float32Array;
 }
 
 // Reference to the canvas showing the wav
 const canvas = ref<WaveCanvas>();
-let width = ref<Number>();
-let height =ref<Number>();
+let width = ref<number>();
+let height =ref<number>();
 
 
-let now = ref<Number>();
+let now = ref<number>();
 
-const interval =ref<Number>();
+const interval =ref<number>();
 
 // On mounted
 onMounted(() => {
@@ -76,7 +74,7 @@ const visualizeWaveInit = () => {
   const audioContent = new audioContext();
   const streamSource = audioContent.createMediaStreamSource(stream.value );
 
-  if (canvas.value != null) {
+  if (canvas.value != undefined) {
     width.value = 400; //@TODO: to be calculted dynamicly based on the viewport
     height.value = 100; 
     canvas.value.width = width.value * window.devicePixelRatio;
@@ -109,32 +107,34 @@ const visualizeWaveStart = () =>{
 }
 
 const visualizeWaveLoop = (): FrameRequestCallback | any  => {
+  
+  if (canvas.value != undefined) {
+    canvas.value.getContext( '2d' )?.clearRect(0, 0, canvas.value.width, canvas.value.height);
+    let max = 0;
 
-canvas.value.getContext( '2d' ).clearRect(0, 0, canvas.value.width, canvas.value.height);
-let max = 0;
-
-if ( parseInt(performance.now() / 32)  > now.value) {
-    now.value = parseInt(performance.now() / 32);
+    if ( parseInt(performance.now() / 32)  > now.value) {
+        now.value = parseInt(performance.now() / 32);
 
 
-    canvas.value.analyser.getFloatTimeDomainData(canvas.value.frequencyArray);
+      canvas.value.analyser.getFloatTimeDomainData(canvas.value.frequencyArray);
 
-    for (let i = 0; i< canvas.value.frequencyArray.length;  i++) {
-      if(canvas.value.frequencyArray[i] > max) {
-        max = canvas.value.frequencyArray[i];
-      } 
-    }    
+      for (let i = 0; i< canvas.value.frequencyArray.length;  i++) {
+        if(canvas.value.frequencyArray[i] > max) {
+          max = canvas.value.frequencyArray[i];
+        } 
+      }    
 
-    var freq = Math.floor(max * 1000);
+      let freq = Math.floor(max * 1000);
 
-    canvas.value.bars.push({
-      x: 0,
-      y: (height.value / 2) - (freq / 2),
-      height: 10 + freq,
-      width: 5
-    });
+      canvas.value.bars.push({
+        x: 0,
+        y: (height.value / 2) - (freq / 2),
+        height: 10 + freq,
+        width: 5
+      });
+    }
+    visualizeWaveDraw();
   }
-  visualizeWaveDraw();
 
 }
 
@@ -161,18 +161,17 @@ const record = async () => {
   if (recordingState.value === 'recording')
   {
     recordingState.value = 'stopped';
-    recordbtn.value?.classList.remove('recording');
+    recordBtn.value?.classList.remove('recording');
     canvas.value?.classList.add('player-mode');
     stop();
   } else {
     recordingState.value = 'recording';
-    recordbtn.value?.classList.add('recording');
+    recordBtn.value?.classList.add('recording');
     canvas.value?.classList.remove('player-mode');
     
     let recordedChunks: Array<any> = [];
 
     try {
-      newAudio.value = new Blob(recordedChunks);;
 
       const options = { mimeType: "audio/webm" };
       recorder.value = new MediaRecorder(stream.value, options);
@@ -215,7 +214,7 @@ const stop = () => {
 }
 
 const playAudio = async () => {
-  if (player.value != null){ 
+  if (player.value != undefined){ 
 
     let posX = 0;
     let duration = 0;
@@ -235,7 +234,7 @@ const playAudio = async () => {
     speed =  width.value / (duration * 100);
     
     // Audio player waveform represntaion.
-    if (canvas.value != null) {
+    if (canvas.value != undefined) {
       let ctx = canvas.value.getContext( '2d' );
       ctx.strokeStyle = "Red";
       ctx.lineWidth = 5;
@@ -265,6 +264,9 @@ const playAudio = async () => {
     }
 
     player.value.play();
+
+    // Send to server.
+    upload();
   } 
 
 }
@@ -300,7 +302,13 @@ const deleteAudio = () => {
   visualizeWaveInit(); // dump the previous waveform
 }
 
-const upload = () => {
+const upload = async () => {
+  let formData = new FormData(); 
+  formData.append("uploaded_file", audioFile.value, "myfile.webm");
+    await fetch('http://localhost:8080/upload', {
+    method: "POST", 
+    body: formData
+  }); 
   return true;
 }
 
@@ -316,12 +324,12 @@ const upload = () => {
 
       <button
         v-if="recordingState != 'stopped'"
-        ref="recordbtn"
-        key="recordbtn"
+        ref="recordBtn"
+        key="recordBtn"
         class="btn record-btn"
         @click="record()"
       >
-        <PhMicrophone size="69%" color="white" weight="fill" />
+        <ph-microphone size="69%" color="white" weight="fill" />
       </button>
 
       <button
@@ -329,7 +337,7 @@ const upload = () => {
         class="btn play-btn"
         @click="playAudio()"
       >
-        <PhPlay size="69%" color="white" weight="fill" />
+        <ph-play size="69%" color="white" weight="fill" />
       </button>
 
       <canvas
@@ -344,7 +352,7 @@ const upload = () => {
         class="btn delete-btn"
         @click="deleteAudio()"
       >
-        <PhTrashSimple size="69%" color="#ff2038" weight="fill" />
+        <ph-trash-simple size="69%" color="#ff2038" weight="fill" />
       </button>
 
     </transition-group>
